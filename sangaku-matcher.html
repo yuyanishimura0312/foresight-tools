@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>産学バックキャストマッチング理論 | Foresight Tools</title>
+  <link rel="icon" href="https://esse-sense.com/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FFFFFF;
+      --text: #121212;
+      --text-secondary: #555555;
+      --text-muted: #999999;
+      --accent: #121212;
+      --accent-warm: #CC1400;
+      --border: #D9D9D9;
+      --border-light: #E8E8E6;
+      --surface: #F7F7F5;
+      --card: #FFFFFF;
+      --font: "Noto Sans JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
+      --font-serif: "Noto Serif JP", "Hiragino Mincho ProN", Georgia, serif;
+      --radius: 0px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121212; --text: #E0E0E0; --text-secondary: #A0A0A0; --text-muted: #666666;
+        --accent: #E0E0E0; --accent-warm: #E05040; --border: #333333; --border-light: #2A2A2A;
+        --surface: #1A1A1A; --card: #1E1E1E;
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+    .container { max-width: 760px; margin: 0 auto; padding: 48px 24px 96px; }
+    .nav-bar { display: flex; gap: 16px; align-items: center; margin-bottom: 40px; font-size: 0.78rem; }
+    .nav-bar a { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .nav-bar a:hover { color: var(--text); }
+    .nav-bar .sep { color: var(--border); }
+    .article-header { margin-bottom: 40px; padding-bottom: 24px; border-bottom: 2px solid var(--accent); }
+    .article-category { font-size: 0.72rem; font-weight: 700; color: var(--accent-warm); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+    .article-title { font-family: var(--font-serif); font-size: 1.6rem; font-weight: 900; line-height: 1.4; letter-spacing: -0.01em; margin-bottom: 8px; }
+    .article-subtitle { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; }
+    .article-meta { display: flex; gap: 16px; margin-top: 16px; font-size: 0.72rem; color: var(--text-muted); }
+    .toc { border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); padding: 20px 0; margin-bottom: 40px; }
+    .toc-label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+    .toc ol { list-style: none; counter-reset: toc; }
+    .toc ol li { counter-increment: toc; }
+    .toc ol li a { display: flex; align-items: baseline; gap: 8px; padding: 3px 0; font-size: 0.82rem; color: var(--text-secondary); text-decoration: none; transition: color 0.15s; }
+    .toc ol li a::before { content: counter(toc); font-size: 0.68rem; font-weight: 700; color: var(--accent-warm); min-width: 14px; }
+    .toc ol li a:hover { color: var(--text); }
+    h2 { font-family: var(--font-serif); font-size: 1.12rem; font-weight: 900; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border-light); scroll-margin-top: 24px; }
+    h3 { font-size: 0.92rem; font-weight: 700; margin: 28px 0 10px; color: var(--text); }
+    p { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.9; }
+    .lead { font-size: 0.92rem; color: var(--text); line-height: 2.0; margin-bottom: 28px; }
+    blockquote { border-left: 3px solid var(--accent-warm); padding: 16px 20px; margin: 24px 0; background: var(--surface); font-size: 0.84rem; color: var(--text-secondary); line-height: 1.8; }
+    blockquote strong { color: var(--text); }
+
+    .score-card { border-top: 2px solid var(--border); padding: 20px 0; }
+    .score-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .score-color { width: 4px; height: 36px; flex-shrink: 0; }
+    .score-name { font-family: var(--font-serif); font-size: 0.92rem; font-weight: 700; }
+    .score-theory { font-size: 0.76rem; color: var(--text-muted); margin-left: 14px; }
+    .score-body { font-size: 0.84rem; color: var(--text-secondary); line-height: 1.85; margin-top: 8px; }
+    .score-body p { font-size: 0.84rem; }
+
+    .weight-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 16px 0; }
+    .weight-table th { text-align: left; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .weight-table td { padding: 10px 0; border-bottom: 1px solid var(--border-light); color: var(--text-secondary); vertical-align: top; }
+    .weight-table td:first-child { font-weight: 600; color: var(--text); width: 200px; }
+    .weight-table td:last-child { text-align: right; font-weight: 700; width: 60px; }
+
+    .approach-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 20px 0; }
+    .approach-item { padding: 16px; border-top: 1px solid var(--border-light); border-right: 1px solid var(--border-light); }
+    .approach-item:nth-child(even) { border-right: none; }
+    .approach-name { font-size: 0.82rem; font-weight: 700; margin-bottom: 6px; }
+    .approach-desc { font-size: 0.76rem; color: var(--text-muted); line-height: 1.6; }
+    .approach-item.highlight { background: var(--surface); }
+
+    .pipeline-diagram { display: flex; align-items: center; gap: 6px; padding: 20px; background: var(--surface); border: 1px solid var(--border-light); margin: 24px 0; overflow-x: auto; flex-wrap: wrap; }
+    .pipeline-step { padding: 10px 14px; font-size: 0.76rem; font-weight: 600; border: 1px solid var(--border); background: var(--card); white-space: nowrap; }
+    .pipeline-step-sub { display: block; font-size: 0.66rem; font-weight: 400; color: var(--text-muted); margin-top: 2px; }
+    .pipeline-step[data-role="input"] { border-color: var(--accent-warm); color: var(--accent-warm); }
+    .pipeline-step[data-role="output"] { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .pipeline-arrow { font-size: 0.82rem; color: var(--text-muted); }
+
+    .caution-box { border-top: 2px solid var(--accent-warm); padding: 16px 0; margin: 32px 0; }
+    .caution-box-label { font-size: 0.72rem; font-weight: 700; color: var(--accent-warm); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 8px; }
+    .caution-box p { font-size: 0.82rem; margin-bottom: 8px; }
+    .caution-box p:last-child { margin-bottom: 0; }
+
+    .cta-section { border-top: 2px solid var(--accent); padding: 24px 0; margin-top: 48px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .cta-text { flex: 1; font-size: 0.84rem; color: var(--text-secondary); min-width: 200px; }
+    .cta-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 24px; background: var(--accent-warm); color: #FFFFFF; font-size: 0.82rem; font-weight: 600; text-decoration: none; transition: opacity 0.2s; }
+    .cta-btn:hover { opacity: 0.85; }
+
+    .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-light); font-size: 0.72rem; color: var(--text-muted); }
+
+    @media (max-width: 768px) {
+      .container { padding: 32px 16px 64px; }
+      .article-title { font-size: 1.3rem; }
+      .approach-grid { grid-template-columns: 1fr; }
+      .approach-item { border-right: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="nav-bar">
+      <a href="index.html">&larr; Foresight Tools</a>
+      <span class="sep">/</span>
+      <span style="color:var(--text-secondary)">Report</span>
+    </nav>
+
+    <header class="article-header">
+      <div class="article-category">Methodology Report</div>
+      <h1 class="article-title">産学バックキャストマッチング理論<br>Industry-Academia Backcast Matching</h1>
+      <p class="article-subtitle">企業の公開情報からバックキャストで潜在ニーズを推定し、大学技術シーズとの産学連携可能性を仮説化する手法</p>
+      <div class="article-meta">
+        <span>MIRATUKU Foresight Tools</span>
+        <span>6 Score Dimensions</span>
+        <span>4,000+ Companies</span>
+        <span>EDINET / Semantic Scholar</span>
+      </div>
+    </header>
+
+    <nav class="toc">
+      <div class="toc-label">Contents</div>
+      <ol>
+        <li><a href="#problem">産学連携マッチングの構造的問題</a></li>
+        <li><a href="#backcast">バックキャスト型アプローチ</a></li>
+        <li><a href="#pipeline">マッチングパイプライン</a></li>
+        <li><a href="#scoring">6次元スコアリング</a></li>
+        <li><a href="#needfit">ニーズ適合度の推定方法</a></li>
+        <li><a href="#explainability">説明可能性の設計</a></li>
+        <li><a href="#landscape">競合との差別化</a></li>
+        <li><a href="#limitations">限界とリスク</a></li>
+      </ol>
+    </nav>
+
+    <p class="lead">
+      産学マッチャー（sangaku-matcher）は、大学の技術シーズを入力として、EDINET有報提出企業約4,000社の公開情報からバックキャストで潜在ニーズを推定し、連携可能性の高い候補企業をスコアリング・ランキングするシステムである。本レポートは、このシステムの理論的基盤、スコアリング手法、既存マッチングサービスとの差別化、および限界について記述する。
+    </p>
+
+    <!-- 1. 問題 -->
+    <h2 id="problem">産学連携マッチングの構造的問題</h2>
+
+    <p>大学の研究成果を産業界と接続する「産学連携」は、日本のイノベーション政策の中核に位置づけられてきた。しかし実態として、産学連携コーディネーターやTLO（技術移転オフィス）担当者は、「どの企業にシーズを持ち込むべきか」を判断する体系的な手段を持っていない。各企業のIR・有価証券報告書・統合報告書を一社ずつ読み込む作業は非現実的であり、結果として「知っている企業」「過去に縁のある企業」に偏ったアプローチになりがちである。</p>
+
+    <p>この構造的な問題には3つの側面がある。第一に、情報の非対称性。大企業のニーズは公開情報に分散しており、中期計画には抽象的な戦略しか書かれず、具体的な技術ニーズはR&D部門の頭の中にしか存在しない。第二に、スケーラビリティの欠如。人手による候補企業の選定はせいぜい数十社が限界であり、4,000社の有報提出企業を網羅的にスクリーニングすることは不可能である。第三に、説明可能性の不足。「なぜこの企業なのか」を構造的に説明できなければ、コーディネーターも企業側もシステムを信頼しない。</p>
+
+    <!-- 2. バックキャスト -->
+    <h2 id="backcast">バックキャスト型アプローチ</h2>
+
+    <p>既存の産学マッチングサービスは、大きく4つのカテゴリに分類できる。本システムはいずれとも異なる第5のアプローチを採用する。</p>
+
+    <div class="approach-grid">
+      <div class="approach-item">
+        <div class="approach-name">シーズプッシュ型</div>
+        <div class="approach-desc">大学シーズを展示し企業の関心を待つ。yet2.com、日本のTLO制度の多く。成功率が低く、多くが形骸化。</div>
+      </div>
+      <div class="approach-item">
+        <div class="approach-name">ニーズプル型</div>
+        <div class="approach-desc">企業が課題を投稿し研究者が応答。P&G Connect+Develop、NineSigma。効果的だが、課題を言語化・公開できる企業に限定。</div>
+      </div>
+      <div class="approach-item">
+        <div class="approach-name">仲介者型</div>
+        <div class="approach-desc">人間のコーディネーターが両者を仲介。リンカーズ、産学連携学会。スケールしない。属人性が高い。</div>
+      </div>
+      <div class="approach-item">
+        <div class="approach-name">AI自動マッチング型</div>
+        <div class="approach-desc">テキスト類似度でシーズとニーズを自動照合。AIST Bibbidi。産総研シーズに限定。企業ニーズは手動投稿前提。</div>
+      </div>
+      <div class="approach-item highlight" style="grid-column: span 2; border-right: none;">
+        <div class="approach-name">バックキャスト推定型（本システム）</div>
+        <div class="approach-desc">企業が課題を投稿しなくても、公開情報（IR・有報・特許・統合報告書）からAIが潜在ニーズを推定する。12商用サービス・16学術論文・12事例の調査で、このアプローチは商用前例がないことが確認されている。</div>
+      </div>
+    </div>
+
+    <p>バックキャスト推定型の核心は、「企業が言語化していないニーズを、公開情報から逆算する」という点にある。企業の中期計画が「ヘルスケア領域のバイオマテリアル探索」と記述し、有報のR&D活動セクションが「生体適合性材料の高機能化」に言及し、特許出願がIPC分類C08L（高分子化合物の組成物）に集中していれば、これらを総合して「自己組織化構造を持つ多孔質バイオフィルム」への潜在的ニーズを推定できる。この推定は仮説であり確定的なニーズではないが、コーディネーターがアプローチ戦略を組み立てるための出発点として十分に機能する。</p>
+
+    <!-- 3. パイプライン -->
+    <h2 id="pipeline">マッチングパイプライン</h2>
+
+    <div class="pipeline-diagram">
+      <div class="pipeline-step" data-role="input">技術シーズ<span class="pipeline-step-sub">テキスト / DOI / 特許番号</span></div>
+      <span class="pipeline-arrow">&rarr;</span>
+      <div class="pipeline-step">シーズ解析<span class="pipeline-step-sub">技術領域ベクトル抽出</span></div>
+      <span class="pipeline-arrow">&rarr;</span>
+      <div class="pipeline-step">4,000社スクリーニング<span class="pipeline-step-sub">6次元スコアリング</span></div>
+      <span class="pipeline-arrow">&rarr;</span>
+      <div class="pipeline-step">根拠生成<span class="pipeline-step-sub">Claude API</span></div>
+      <span class="pipeline-arrow">&rarr;</span>
+      <div class="pipeline-step" data-role="output">TOP10-20社<span class="pipeline-step-sub">スコア+根拠+推奨モード</span></div>
+    </div>
+
+    <p>パイプラインの第一段階では、入力された技術シーズ（自由記述テキスト、論文DOI、特許番号、またはそれらの組み合わせ）を解析し、統一フォーマットに変換する。シーズの技術領域ベクトル（IPCコードまたはセマンティックエンベディング）が抽出される。</p>
+
+    <p>第二段階では、約4,000社の企業データベースに対して6次元のスコアリングを実行する。各企業について事前に計算・キャッシュされたバックキャスト推定結果（潜在ニーズの記述とエンベディング）が使用されるため、スクリーニング自体は高速に完了する。</p>
+
+    <p>第三段階では、上位候補企業について、Claude APIが「なぜこの企業がマッチするのか」の根拠説明と推奨連携モード（共同研究・ライセンス・受託開発・中長期研究契約）を生成する。</p>
+
+    <!-- 4. スコアリング -->
+    <h2 id="scoring">6次元スコアリング</h2>
+
+    <p>各シーズ-企業ペアのマッチングスコアは6つの特徴量の加重和として算出される。スコアは0〜1の範囲に正規化される。</p>
+
+    <div class="score-card">
+      <div class="score-header">
+        <div class="score-color" style="background:#CC1400;"></div>
+        <div>
+          <div class="score-name">NeedFit（ニーズ適合度）</div>
+          <div class="score-theory">重み: 30% &mdash; 本システムの中核特徴量</div>
+        </div>
+      </div>
+      <div class="score-body">
+        <p>Claude APIで企業の中期計画・統合報告書から推定された潜在ニーズの記述を、シーズが解決しうる事業課題の記述とセマンティックに比較する。潜在ニーズの推定は月次バッチで事前計算しキャッシュされ、シーズとの照合は実行時にSentence-BERTのコサイン類似度で行う。これが本システム独自の差別化機能であり、他のマッチングサービスが持たないバックキャスト推定を実現する特徴量である。</p>
+      </div>
+    </div>
+
+    <div class="score-card">
+      <div class="score-header">
+        <div class="score-color" style="background:#2c5f8a;"></div>
+        <div>
+          <div class="score-name">TechProx（技術的近接性）</div>
+          <div class="score-theory">重み: 20% &mdash; Petruzzelli (2011) 逆U字型関係</div>
+        </div>
+      </div>
+      <div class="score-body">
+        <p>シーズの技術領域ベクトルと企業の特許ポートフォリオベクトルのコサイン類似度を計算し、Petruzzelli (2011) が示した逆U字型関係（近すぎず遠すぎない技術距離が最も生産的な連携を生む）に基づく評価関数 <code>f(x) = 4x(1-x)</code> で変換する。完全一致（類似度1.0）よりも適度な距離（類似度0.5前後）が高評価となる設計である。</p>
+      </div>
+    </div>
+
+    <div class="score-card">
+      <div class="score-header">
+        <div class="score-color" style="background:#5a7a52;"></div>
+        <div>
+          <div class="score-name">AbsCap（吸収能力）</div>
+          <div class="score-theory">重み: 20% &mdash; Cohen & Levinthal (1990)</div>
+        </div>
+      </div>
+      <div class="score-body">
+        <p>Cohen & Levinthal (1990) の吸収能力（Absorptive Capacity）理論に基づき、企業が外部知識を認識・同化・活用する能力を定量化する。R&D集約度（研究開発費÷売上高、業種別に正規化）、R&D絶対額（対数値）、特許出願密度（出願件数÷従業員数）の3指標を業種別に標準化し平均する。業種別正規化は、製薬・電機セクターへの過度な偏りを防ぐために必須である。</p>
+      </div>
+    </div>
+
+    <div class="score-card">
+      <div class="score-header">
+        <div class="score-color" style="background:#C9A96E;"></div>
+        <div>
+          <div class="score-name">PastTies（過去の連携実績）</div>
+          <div class="score-theory">重み: 10%</div>
+        </div>
+      </div>
+      <div class="score-body">
+        <p>大学（または同分野の大学群）と企業の共同特許出願数と共著論文数（いずれも過去10年）を集計し、対数変換した値を使用する。過去に実績がある企業は連携のハードルが低い一方、実績ゼロの企業を強くペナルティしない設計（重み10%に抑制）とし、新たな連携の可能性を排除しない。</p>
+      </div>
+    </div>
+
+    <div class="score-card">
+      <div class="score-header">
+        <div class="score-color" style="background:#783c28;"></div>
+        <div>
+          <div class="score-name">TRLCompat（TRL適合性）</div>
+          <div class="score-theory">重み: 10%</div>
+        </div>
+      </div>
+      <div class="score-body">
+        <p>シーズのTRL（技術成熟度レベル）と企業ニーズのTRLギャップを推定し、閾値関数を適用する。ギャップが3以下なら1.0、3〜5なら0.7、5超なら0.4。企業が求める成熟度と大学シーズの現在の段階が大きく乖離している場合、連携は成立しにくいことを反映する。</p>
+      </div>
+    </div>
+
+    <div class="score-card">
+      <div class="score-header">
+        <div class="score-color" style="background:#A86B50;"></div>
+        <div>
+          <div class="score-name">OpenInnoMaturity（オープンイノベーション成熟度）</div>
+          <div class="score-theory">重み: 10% &mdash; NIH症候群フィルター</div>
+        </div>
+      </div>
+      <div class="score-body">
+        <p>企業がオープンイノベーションに対してどれだけ受容的かを5項目のチェックリストで評価する。CVC設立有無、OI専担組織の有無、経営層のOI関連発言、スタートアップ連携実績、大学連携実績の5点を確認し、NIH症候群（Not Invented Here＝外部由来の技術を拒否する組織文化）を持つ企業をフィルタリングする。数値上は高スコアでも、経営層がOIを拒否する企業に持ち込んでも成果は出ない。</p>
+      </div>
+    </div>
+
+    <h3>スコア式</h3>
+
+    <table class="weight-table">
+      <thead>
+        <tr>
+          <th>特徴量</th>
+          <th>情報源</th>
+          <th>重み</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>NeedFit（ニーズ適合度）</td>
+          <td>中期計画・統合報告書 + Claude推定</td>
+          <td>30%</td>
+        </tr>
+        <tr>
+          <td>TechProx（技術的近接性）</td>
+          <td>特許IPC分布 + Sentence-BERT</td>
+          <td>20%</td>
+        </tr>
+        <tr>
+          <td>AbsCap（吸収能力）</td>
+          <td>有報（研究開発費・従業員数）</td>
+          <td>20%</td>
+        </tr>
+        <tr>
+          <td>PastTies（連携実績）</td>
+          <td>共同特許・共著論文</td>
+          <td>10%</td>
+        </tr>
+        <tr>
+          <td>TRLCompat（TRL適合性）</td>
+          <td>シーズ情報 + 企業ニーズ</td>
+          <td>10%</td>
+        </tr>
+        <tr>
+          <td>OpenInnoMaturity（OI成熟度）</td>
+          <td>統合報告書・プレスリリース</td>
+          <td>10%</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 5. NeedFit -->
+    <h2 id="needfit">ニーズ適合度の推定方法</h2>
+
+    <p>NeedFitは本システムの中核であり、他の産学マッチングサービスが実装していないバックキャスト推定を実現する特徴量である。その推定プロセスは2段階で構成される。</p>
+
+    <h3>第一段階: 潜在ニーズの事前推定</h3>
+
+    <p>約4,000社の各企業について、有報の「研究開発活動」セクション全文と中期計画テキストをClaude APIに入力し、「この企業が今後3〜5年で必要とする可能性が高い技術領域」を推定させる。推定結果はテキスト記述とセマンティックエンベディングの両方でキャッシュされる。推定の根拠（どのテキスト箇所から推定したか）も保持される。この処理は月次バッチで実行され、初回のフルロードコストは約80ドル（1企業あたり約5,000入力トークン + 1,000出力トークン、Sonnet 4.6使用）である。</p>
+
+    <h3>第二段階: シーズとのマッチング</h3>
+
+    <p>ユーザーがシーズを入力した時点で、シーズの記述とすべての企業の潜在ニーズ記述をSentence-BERTのコサイン類似度で比較する。事前計算されたエンベディングを使用するため、4,000社のスクリーニングは数秒で完了する。</p>
+
+    <blockquote>
+      <strong>具体例:</strong> 大学研究者が「自己組織化ハニカム構造を持つ多孔質フィルム」というシーズを入力した場合、富士フイルムの潜在ニーズ推定（中期計画のヘルスケア領域バイオマテリアル探索方針から推定）との類似度が高くなり、加えてTechProx（IPC C08L分類の一致）とPastTies（東北大学下村研との既存共同特許）が加点され、上位候補として提示される。「なぜ富士フイルムが候補か」は、これら3つの根拠から説明される。
+    </blockquote>
+
+    <!-- 6. 説明可能性 -->
+    <h2 id="explainability">説明可能性の設計</h2>
+
+    <p>産学連携において、マッチングの根拠を説明できないシステムは信頼されない。本システムは説明可能性を設計の中核原則に位置づけている。</p>
+
+    <p>第一に、スコアの内訳が完全に可視化される。総合スコアだけでなく、6つの特徴量それぞれの値と計算根拠が追跡可能である。ユーザーは「この企業はNeedFitが高いがTechProxが低い」といった構造的な理解に基づいて判断できる。</p>
+
+    <p>第二に、各候補企業に対して3〜5文の根拠説明が自然言語で生成される。「なぜこの企業なのか」を技術的適合性、吸収能力、潜在ニーズの一致点、過去の連携実績のいずれかの観点から具体的に説明する。</p>
+
+    <p>第三に、LLMによるバックキャスト推定は常に「これは推定であり仮説である」と明示される。推定の根拠となったテキスト箇所も引用されるため、ユーザーは推定の妥当性を自ら検証できる。</p>
+
+    <!-- 7. 差別化 -->
+    <h2 id="landscape">競合との差別化</h2>
+
+    <p>12商用サービス、16学術論文、12事例を対象としたベンチマーク調査（三角検証方式で実施）から、以下の3つの確度の高い知見が得られている。</p>
+
+    <p><strong>ニーズプル型がシーズプッシュ型を圧倒する。</strong>P&G Connect+Developや武田薬品COCKPI-Tなど、企業ニーズ起点のアプローチを採用したケースは、シーズを展示して企業の関心を待つアプローチよりも高い成功率を示す。本システムはこの知見を踏まえ、ニーズ起点（バックキャスト型）を採用している。</p>
+
+    <p><strong>スコアの三本柱は技術的近接性・吸収能力・連携実績。</strong>学術論文の分析から、この3特徴量がマッチング品質に最も強く寄与することが示されている。本システムのスコア式はこの知見に基づいて設計されている。</p>
+
+    <p><strong>公開情報からの潜在ニーズ推定は商用前例がない。</strong>既存サービスは「企業が自ら課題を投稿する」ことを前提としており、公開情報から潜在ニーズをバックキャストで推定するアプローチは確認されていない。これが本システムの差別化ポイントであり、「課題を言語化・公開できない」日本企業の文化的特性に対応する。</p>
+
+    <!-- 8. 限界 -->
+    <h2 id="limitations">限界とリスク</h2>
+
+    <p><strong>バックキャスト推定の精度。</strong>Claude APIによる潜在ニーズ推定は、あくまでも公開情報から推論された仮説であり、企業の実際のニーズと乖離する可能性がある。特に、中期計画に記載されていない新規事業領域や、戦略的に非公開としている技術ニーズは捕捉できない。出力は常に「仮説」として位置づけ、コーディネーターの経験的判断との照合が不可欠である。</p>
+
+    <p><strong>公開情報への依存。</strong>本システムは有報・統合報告書・特許といった公開情報のみを使用する。非上場企業、中小企業、ベンチャー企業はカバーできない。また、公開情報の更新頻度（有報は年次、特許は出願から公開まで18ヶ月）により、急速に変化する企業ニーズを即座に反映できない。</p>
+
+    <p><strong>NIH症候群への対応。</strong>OpenInnoMaturityスコアで組織的なオープンイノベーション受容度を評価しているが、この指標は公開情報ベースであり、実際の組織文化の深層（部門長レベルの姿勢、過去の失敗体験等）まではカバーできない。数値上は高スコアでも実際にはNIH症候群を持つ企業が含まれる可能性がある。</p>
+
+    <p><strong>倫理的配慮。</strong>企業の公開情報を集約して潜在ニーズを推定する行為は、特定企業から見て侵襲的と受け取られる可能性がある。当面は内部利用に限定し、商用提供時には法務レビューを実施する。出力は特定企業を不利に扱うものではなく、「スコアが低い」という表現に留める。</p>
+
+    <div class="caution-box">
+      <div class="caution-box-label">Important</div>
+      <p>本システムの出力は「仮説の提示」であり、マッチングの成否を保証するものではない。最終的な連携先の選定と交渉は、コーディネーターの専門的判断に委ねられる。システムの役割は、候補企業の選定に費やされていた作業時間を劇的に短縮し、見落とされていた候補を浮上させ、アプローチの根拠を構造化することにある。</p>
+      <p>本システムは3つのForesight Tools（構造的変化点評価、フロンティア検出、産学マッチング）の中で、最も具体的なアクション（企業へのアプローチ）に直結するツールである。Structural Inflection Point Scorerで「いつ動くべきか」を判断し、Frontier Detectorで「どの技術領域が活発か」を把握し、産学マッチャーで「誰と組むべきか」を同定する。3ツールの組み合わせにより、研究テーマの評価から連携先の特定まで一貫した意思決定支援が可能になる。</p>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-section">
+      <div class="cta-text">産学マッチャーで技術シーズの連携候補企業を検索する</div>
+      <a href="https://sangaku-matcher.onrender.com/" class="cta-btn" target="_blank" rel="noopener">産学マッチャー を開く &rarr;</a>
+    </div>
+
+    <div class="footer">
+      <span>MIRATUKU Foresight Tools &mdash; Industry-Academia Backcast Matching</span>
+    </div>
+  </div>
+</body>
+</html>

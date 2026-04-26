@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>技術フロンティア検出理論 | Foresight Tools</title>
+  <link rel="icon" href="https://esse-sense.com/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FFFFFF;
+      --text: #121212;
+      --text-secondary: #555555;
+      --text-muted: #999999;
+      --accent: #121212;
+      --accent-warm: #CC1400;
+      --border: #D9D9D9;
+      --border-light: #E8E8E6;
+      --surface: #F7F7F5;
+      --card: #FFFFFF;
+      --font: "Noto Sans JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
+      --font-serif: "Noto Serif JP", "Hiragino Mincho ProN", Georgia, serif;
+      --radius: 0px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121212; --text: #E0E0E0; --text-secondary: #A0A0A0; --text-muted: #666666;
+        --accent: #E0E0E0; --accent-warm: #E05040; --border: #333333; --border-light: #2A2A2A;
+        --surface: #1A1A1A; --card: #1E1E1E;
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+    .container { max-width: 760px; margin: 0 auto; padding: 48px 24px 96px; }
+    .nav-bar { display: flex; gap: 16px; align-items: center; margin-bottom: 40px; font-size: 0.78rem; }
+    .nav-bar a { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .nav-bar a:hover { color: var(--text); }
+    .nav-bar .sep { color: var(--border); }
+    .article-header { margin-bottom: 40px; padding-bottom: 24px; border-bottom: 2px solid var(--accent); }
+    .article-category { font-size: 0.72rem; font-weight: 700; color: var(--accent-warm); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+    .article-title { font-family: var(--font-serif); font-size: 1.6rem; font-weight: 900; line-height: 1.4; letter-spacing: -0.01em; margin-bottom: 8px; }
+    .article-subtitle { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; }
+    .article-meta { display: flex; gap: 16px; margin-top: 16px; font-size: 0.72rem; color: var(--text-muted); }
+    .toc { border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); padding: 20px 0; margin-bottom: 40px; }
+    .toc-label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+    .toc ol { list-style: none; counter-reset: toc; }
+    .toc ol li { counter-increment: toc; }
+    .toc ol li a { display: flex; align-items: baseline; gap: 8px; padding: 3px 0; font-size: 0.82rem; color: var(--text-secondary); text-decoration: none; transition: color 0.15s; }
+    .toc ol li a::before { content: counter(toc); font-size: 0.68rem; font-weight: 700; color: var(--accent-warm); min-width: 14px; }
+    .toc ol li a:hover { color: var(--text); }
+    h2 { font-family: var(--font-serif); font-size: 1.12rem; font-weight: 900; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border-light); scroll-margin-top: 24px; }
+    h3 { font-size: 0.92rem; font-weight: 700; margin: 28px 0 10px; color: var(--text); }
+    p { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.9; }
+    .lead { font-size: 0.92rem; color: var(--text); line-height: 2.0; margin-bottom: 28px; }
+    blockquote { border-left: 3px solid var(--accent-warm); padding: 16px 20px; margin: 24px 0; background: var(--surface); font-size: 0.84rem; color: var(--text-secondary); line-height: 1.8; }
+    blockquote strong { color: var(--text); }
+
+    .agent-card { border-top: 2px solid var(--border); padding: 20px 0; }
+    .agent-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .agent-color { width: 4px; height: 36px; flex-shrink: 0; }
+    .agent-name { font-family: var(--font-serif); font-size: 0.92rem; font-weight: 700; }
+    .agent-source { font-size: 0.76rem; color: var(--text-muted); margin-left: 14px; }
+    .agent-body { font-size: 0.84rem; color: var(--text-secondary); line-height: 1.85; margin-top: 8px; }
+    .agent-body p { font-size: 0.84rem; }
+
+    .weight-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 16px 0; }
+    .weight-table th { text-align: left; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .weight-table td { padding: 10px 0; border-bottom: 1px solid var(--border-light); color: var(--text-secondary); vertical-align: top; }
+    .weight-table td:first-child { font-weight: 600; color: var(--text); width: 180px; }
+    .weight-table td:nth-child(3) { text-align: right; font-weight: 700; width: 60px; }
+
+    .label-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border-light); font-size: 0.82rem; }
+    .label-score { font-weight: 700; min-width: 60px; flex-shrink: 0; }
+    .label-name { font-weight: 700; min-width: 120px; flex-shrink: 0; }
+    .label-desc { color: var(--text-secondary); flex: 1; }
+
+    .pipeline-diagram { display: flex; align-items: center; gap: 6px; padding: 20px; background: var(--surface); border: 1px solid var(--border-light); margin: 24px 0; overflow-x: auto; flex-wrap: wrap; }
+    .pipeline-step { padding: 10px 14px; font-size: 0.76rem; font-weight: 600; border: 1px solid var(--border); background: var(--card); white-space: nowrap; }
+    .pipeline-step-sub { display: block; font-size: 0.66rem; font-weight: 400; color: var(--text-muted); margin-top: 2px; }
+    .pipeline-step[data-role="input"] { border-color: var(--accent-warm); color: var(--accent-warm); }
+    .pipeline-step[data-role="output"] { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .pipeline-arrow { font-size: 0.82rem; color: var(--text-muted); }
+
+    .quality-tag { display: inline-block; padding: 2px 8px; font-size: 0.68rem; font-weight: 600; }
+    .quality-measured { background: #e8f0e6; color: #2D8A4E; }
+    .quality-estimated { background: #FDF3E0; color: #B8863E; }
+
+    .caution-box { border-top: 2px solid var(--accent-warm); padding: 16px 0; margin: 32px 0; }
+    .caution-box-label { font-size: 0.72rem; font-weight: 700; color: var(--accent-warm); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 8px; }
+    .caution-box p { font-size: 0.82rem; margin-bottom: 8px; }
+    .caution-box p:last-child { margin-bottom: 0; }
+
+    .cta-section { border-top: 2px solid var(--accent); padding: 24px 0; margin-top: 48px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .cta-text { flex: 1; font-size: 0.84rem; color: var(--text-secondary); min-width: 200px; }
+    .cta-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 24px; background: var(--accent-warm); color: #FFFFFF; font-size: 0.82rem; font-weight: 600; text-decoration: none; transition: opacity 0.2s; }
+    .cta-btn:hover { opacity: 0.85; }
+
+    .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-light); font-size: 0.72rem; color: var(--text-muted); }
+
+    @media (max-width: 768px) {
+      .container { padding: 32px 16px 64px; }
+      .article-title { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="nav-bar">
+      <a href="index.html">&larr; Foresight Tools</a>
+      <span class="sep">/</span>
+      <span style="color:var(--text-secondary)">Report</span>
+    </nav>
+
+    <header class="article-header">
+      <div class="article-category">Methodology Report</div>
+      <h1 class="article-title">技術フロンティア検出理論<br>Technology Frontier Detection</h1>
+      <p class="article-subtitle">5つのAIリサーチエージェントと7次元スコアリングによる技術領域の成熟度・成長性の定量評価</p>
+      <div class="article-meta">
+        <span>MIRATUKU Foresight Tools</span>
+        <span>6 Agents</span>
+        <span>7 Dimensions</span>
+        <span>OpenAlex + GDELT</span>
+      </div>
+    </header>
+
+    <nav class="toc">
+      <div class="toc-label">Contents</div>
+      <ol>
+        <li><a href="#concept">技術フロンティアとは何か</a></li>
+        <li><a href="#pipeline">分析パイプライン</a></li>
+        <li><a href="#agents">6つのリサーチエージェント</a></li>
+        <li><a href="#dimensions">7次元スコアリング</a></li>
+        <li><a href="#labels">フロンティア分類</a></li>
+        <li><a href="#quality">データ品質と信頼度</a></li>
+        <li><a href="#crossref">類似技術照合と独自性評価</a></li>
+        <li><a href="#limitations">限界と留意事項</a></li>
+      </ol>
+    </nav>
+
+    <p class="lead">
+      Frontier Detectorは、技術名を入力として、学術論文・特許・ニュース・資金調達・新興キーワードの5つの情報源から並列にデータを収集し、7つの次元でフロンティアスコア（0-100）を算出するツールである。本レポートは、この分析手法の理論的基盤、エージェント構成、スコアリングロジック、データ品質の扱いについて記述する。
+    </p>
+
+    <!-- 1. 概念 -->
+    <h2 id="concept">技術フロンティアとは何か</h2>
+
+    <p>「技術フロンティア」とは、ある技術領域において研究・開発・投資・社会的関心が急速に拡大しつつある先端的な状態を指す。フロンティアにある技術は、論文数が加速度的に増加し、引用が集中的に発生し、新たな研究者が流入し、特許出願が加速し、メディアの注目と資金が集まっている。</p>
+
+    <p>しかし「フロンティアかどうか」を単一の指標で判断することはできない。論文数だけを見れば成熟した技術領域も高い数値を示すし、メディアの注目だけを見ればバズワードに過ぎない領域も高く見える。技術フロンティアの的確な把握には、複数の独立した情報源から異なる角度で観測し、それらのシグナルが収束しているかどうかを確認する必要がある。</p>
+
+    <p>Frontier Detectorが採用するのは、この多角的観測のアプローチである。5つの専門エージェントがそれぞれ独立したデータソースにアクセスし、7つの次元でスコアを算出する。これにより、「学術的には活発だが商業的な動きが伴っていない技術」や「メディアは注目しているが学術的基盤が脆弱な技術」といった偏りを構造的に検出できる。</p>
+
+    <!-- 2. パイプライン -->
+    <h2 id="pipeline">分析パイプライン</h2>
+
+    <p>Frontier Detectorの分析は、4つのステージを順に実行するパイプラインとして構成されている。</p>
+
+    <div class="pipeline-diagram">
+      <div class="pipeline-step" data-role="input">技術名<span class="pipeline-step-sub">日本語 or 英語</span></div>
+      <span class="pipeline-arrow">&rarr;</span>
+      <div class="pipeline-step">翻訳・正規化<span class="pipeline-step-sub">Claude Haiku</span></div>
+      <span class="pipeline-arrow">&rarr;</span>
+      <div class="pipeline-step">6エージェント並列実行<span class="pipeline-step-sub">OpenAlex / GDELT / DuckDuckGo / PR Times</span></div>
+      <span class="pipeline-arrow">&rarr;</span>
+      <div class="pipeline-step">7次元スコア算出<span class="pipeline-step-sub">CAGR / 加速度 / 比率</span></div>
+      <span class="pipeline-arrow">&rarr;</span>
+      <div class="pipeline-step">類似技術照合<span class="pipeline-step-sub">Inflection Radar連携</span></div>
+      <span class="pipeline-arrow">&rarr;</span>
+      <div class="pipeline-step" data-role="output">日本語レポート<span class="pipeline-step-sub">10セクション構成</span></div>
+    </div>
+
+    <p>第一ステージでは、入力された技術名（日本語または英語）をClaude Haikuで英語の正規名に翻訳し、代替名称（エイリアス）と技術ドメインを同定する。これは後続のエージェントが英語圏のデータベースを検索する際の精度を確保するための前処理である。</p>
+
+    <p>第二ステージでは、6つの専門エージェントが非同期に並列実行される。各エージェントは独立したデータソースにアクセスし、エージェント間の依存関係がないため、全体の実行時間は最も遅いエージェントの実行時間に収束する。</p>
+
+    <p>第三ステージでは、収集されたデータから7つの定量スコアを算出する。各スコアは0〜100の範囲で正規化され、加重平均により総合スコアが計算される。</p>
+
+    <p>第四ステージでは、Structural Inflection Radarのデータベースと照合し、類似技術の存在と独自性を評価する。最後にClaude APIが全データを統合した包括的な日本語レポートを生成する。</p>
+
+    <!-- 3. エージェント -->
+    <h2 id="agents">6つのリサーチエージェント</h2>
+
+    <p>各エージェントは専門領域に特化し、それぞれ異なるデータソースと分析手法を持つ。エージェントの設計思想は「構造化APIから実データを取得するエージェント」と「検索ベースでAIが推定するエージェント」の2種類に分かれる。前者はデータの信頼性が高く、後者はカバー範囲が広い。</p>
+
+    <div class="agent-card">
+      <div class="agent-header">
+        <div class="agent-color" style="background:#2c5f8a;"></div>
+        <div>
+          <div class="agent-name">Academic Analyst</div>
+          <div class="agent-source">OpenAlex API &mdash; 構造化データ</div>
+        </div>
+      </div>
+      <div class="agent-body">
+        <p>学術論文のデータベースOpenAlex APIに直接アクセスし、論文数の年次推移、引用数の年次推移、主要論文（引用数上位50件）、主要研究者（h-index付き）を取得する。AIの推論を介さずにAPIから構造化データを取得するため、データ信頼度は最も高い。学術的勢い（Academic Momentum）、引用の加速度（Citation Burst）、新規研究者の流入（Researcher Influx）の3次元のスコアリングに使用される。</p>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-header">
+        <div class="agent-color" style="background:#5a7a52;"></div>
+        <div>
+          <div class="agent-name">Patent Analyst</div>
+          <div class="agent-source">DuckDuckGo + Claude &mdash; 推定データ</div>
+        </div>
+      </div>
+      <div class="agent-body">
+        <p>特許出願の動向を検索ベースで分析する。DuckDuckGoで特許関連の検索結果を収集し、Claude AIが年次の出願傾向、主要出願者、技術的方向性を推定する。構造化APIではないため推定値だが、特許の加速度（Patent Acceleration）スコアの算出に用いる。</p>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-header">
+        <div class="agent-color" style="background:#CC1400;"></div>
+        <div>
+          <div class="agent-name">Media Analyst</div>
+          <div class="agent-source">GDELT API &mdash; 構造化データ</div>
+        </div>
+      </div>
+      <div class="agent-body">
+        <p>世界のニュース報道を網羅するGDELT（Global Database of Events, Language, and Tone）APIからニュース記事数の年次推移を取得し、メディア注目度（Media Attention）を定量化する。GDELTは250カ国以上・100言語以上をカバーするため、特定メディアへの偏りが小さい。</p>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-header">
+        <div class="agent-color" style="background:#C9A96E;"></div>
+        <div>
+          <div class="agent-name">Funding Analyst</div>
+          <div class="agent-source">DuckDuckGo + Claude &mdash; 推定データ</div>
+        </div>
+      </div>
+      <div class="agent-body">
+        <p>資金調達・投資の動向を検索ベースで分析する。VC投資ラウンド、政府助成金、企業R&D投資の情報をDuckDuckGoで収集し、Claudeが年次の資金調達傾向と主要ラウンドを推定する。資金調達の成長（Funding Growth）スコアに使用される。</p>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-header">
+        <div class="agent-color" style="background:#783c28;"></div>
+        <div>
+          <div class="agent-name">Keyword Analyst</div>
+          <div class="agent-source">DuckDuckGo + Claude &mdash; 推定データ</div>
+        </div>
+      </div>
+      <div class="agent-body">
+        <p>技術領域に関連する新興キーワードとサブトピックの出現を追跡する。最近になって初めて言及され始めたキーワードの比率を計測し、キーワードの新規性（Keyword Novelty）スコアを算出する。新しいサブトピックが急増している技術領域はフロンティアである可能性が高い。</p>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-header">
+        <div class="agent-color" style="background:#A86B50;"></div>
+        <div>
+          <div class="agent-name">PR Times Analyst</div>
+          <div class="agent-source">PR Times検索 &mdash; 日本市場特化</div>
+        </div>
+      </div>
+      <div class="agent-body">
+        <p>日本国内の企業プレスリリースを分析する補助エージェント。PR Timesの検索結果から、主要プレイヤー、市場成熟度、国内での競合状況を把握する。7次元スコアには直接寄与しないが、レポート生成と類似技術照合に活用される。</p>
+      </div>
+    </div>
+
+    <!-- 4. 7次元 -->
+    <h2 id="dimensions">7次元スコアリング</h2>
+
+    <p>フロンティアスコアは7つの独立した次元から構成される。各次元は0〜100の範囲でスコアリングされ、加重平均により総合スコアが算出される。</p>
+
+    <table class="weight-table">
+      <thead>
+        <tr>
+          <th>次元</th>
+          <th>計測方法</th>
+          <th>重み</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>学術的勢い</td>
+          <td>過去5年の論文数の複合年間成長率（CAGR）。50% CAGRで満点。 <span class="quality-tag quality-measured">実データ</span></td>
+          <td>20%</td>
+        </tr>
+        <tr>
+          <td>引用の加速度</td>
+          <td>引用数の成長率の変化（加速度）。後半期の成長率が前半期を上回れば高スコア。 <span class="quality-tag quality-measured">実データ</span></td>
+          <td>20%</td>
+        </tr>
+        <tr>
+          <td>特許出願の加速</td>
+          <td>特許出願数の加速度。成長率が加速しているか減速しているかを判定。 <span class="quality-tag quality-estimated">推定値</span></td>
+          <td>15%</td>
+        </tr>
+        <tr>
+          <td>メディア注目度</td>
+          <td>過去3年のニュース報道数のCAGR。GDELT APIから取得。 <span class="quality-tag quality-measured">実データ</span></td>
+          <td>10%</td>
+        </tr>
+        <tr>
+          <td>資金調達の成長</td>
+          <td>過去5年の資金調達件数のCAGR。検索ベースで推定。 <span class="quality-tag quality-estimated">推定値</span></td>
+          <td>15%</td>
+        </tr>
+        <tr>
+          <td>新規研究者の流入</td>
+          <td>活動中の研究者のうち最近参入した研究者の比率。40%以上で満点。 <span class="quality-tag quality-measured">実データ</span></td>
+          <td>10%</td>
+        </tr>
+        <tr>
+          <td>キーワードの新規性</td>
+          <td>関連キーワードのうち最近初めて出現したキーワードの比率。 <span class="quality-tag quality-estimated">推定値</span></td>
+          <td>10%</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>加重配分の設計根拠</h3>
+
+    <p>学術的勢いと引用の加速度がそれぞれ最大の20%を占めるのは、学術論文が技術発展の最も早期かつ信頼性の高いシグナルであり、OpenAlex APIから構造化データとして取得できるためである。特許と資金調達は各15%で、技術の実用化・商業化への移行を示す重要な指標だが、データが推定値であるため重みをやや低く設定している。メディア注目度、研究者流入、キーワード新規性は各10%で、補助的なシグナルとして機能する。</p>
+
+    <h3>計算方法</h3>
+
+    <p>学術的勢い・メディア注目度・資金調達の成長にはCAGR（複合年間成長率）が使用される。CAGRは時系列データのスムーズな成長率を示し、単年の外れ値の影響を受けにくい。50% CAGRで100点のスケーリングが適用される。</p>
+
+    <p>引用の加速度・特許出願の加速には「成長率の成長率」（二階微分）が使用される。時系列を前半と後半に分割し、各期間の平均成長率を比較する。後半が前半を上回っていれば加速中（50点以上）、下回っていれば減速中（50点以下）と判定される。</p>
+
+    <p>データが欠損している次元はスキップされ、残りの次元の重みが再正規化される。これにより、一部のエージェントが失敗しても総合スコアは算出される。</p>
+
+    <!-- 5. ラベル -->
+    <h2 id="labels">フロンティア分類</h2>
+
+    <p>総合スコアに基づき、技術領域は5段階に分類される。</p>
+
+    <div class="label-row">
+      <div class="label-score">90-100</div>
+      <div class="label-name">超フロンティア</div>
+      <div class="label-desc">すべての次元で急成長が確認される、爆発的に拡大中の技術領域。極めてまれ。</div>
+    </div>
+    <div class="label-row">
+      <div class="label-score">70-89</div>
+      <div class="label-name">フロンティア</div>
+      <div class="label-desc">複数の次元で強い成長シグナルが観測される先端技術領域。研究・投資ともに活発。</div>
+    </div>
+    <div class="label-row">
+      <div class="label-score">50-69</div>
+      <div class="label-name">立ち上がり期</div>
+      <div class="label-desc">成長の兆候が見え始めている段階。一部の次元では強いシグナルがあるが、全体的にはまだ発展途上。</div>
+    </div>
+    <div class="label-row">
+      <div class="label-score">30-49</div>
+      <div class="label-name">成長期</div>
+      <div class="label-desc">安定的に成長しているが、加速的な拡大は見られない。確立された技術領域の可能性。</div>
+    </div>
+    <div class="label-row">
+      <div class="label-score">0-29</div>
+      <div class="label-name">成熟期・衰退期</div>
+      <div class="label-desc">成長が鈍化または停止している技術領域。成熟した確立技術か、関心が失われた領域。</div>
+    </div>
+
+    <!-- 6. データ品質 -->
+    <h2 id="quality">データ品質と信頼度</h2>
+
+    <p>Frontier Detectorは、各次元のスコアにデータ品質ラベルを付与する。<span class="quality-tag quality-measured">実データ</span>は構造化APIから直接取得されたデータに基づくスコアであり、<span class="quality-tag quality-estimated">推定値</span>はAI推論を介して得られたスコアである。</p>
+
+    <p>総合的な信頼度（Confidence Ratio）は、実データに基づく次元の重み合計を全体の重み合計で割った比率として計算される。現在のデフォルト構成では、学術的勢い（20%）+ 引用の加速度（20%）+ メディア注目度（10%）+ 研究者流入（10%）= 60%が実データに基づくため、基本的な信頼度は60%となる。</p>
+
+    <p>この設計の意図は透明性にある。ユーザーはスコアの何割が実データに基づき、何割がAI推定に依存しているかを常に把握できる。推定値の比率が高い場合は、追加の調査で裏付けを取ることが推奨される。</p>
+
+    <!-- 7. 類似技術照合 -->
+    <h2 id="crossref">類似技術照合と独自性評価</h2>
+
+    <p>フロンティアスコアの算出後、Frontier DetectorはStructural Inflection Radarのデータベースとの照合を行う。これは入力された技術が既知の技術テーマとどの程度類似しているかを検出し、独自性を評価するためのプロセスである。</p>
+
+    <p>照合は技術名のセマンティック類似度に基づいて行われ、上位10件の類似テーマが抽出される。これにより、入力技術が既に広く知られた領域の一部なのか、あるいは先行事例のない新規領域なのかが判断できる。</p>
+
+    <p>加えて、PR Timesのプレスリリース検索結果を組み合わせ、国内における競合状況と市場成熟度の評価も行う。これらの情報は最終レポートの「類似技術・競合分析」「独自性評価」「データ十分性評価」のセクションに反映される。</p>
+
+    <!-- 8. 限界 -->
+    <h2 id="limitations">限界と留意事項</h2>
+
+    <p>Frontier Detectorは技術フロンティアの定量評価において有用なツールだが、以下の限界を理解した上で結果を解釈する必要がある。</p>
+
+    <p><strong>英語圏バイアス。</strong>OpenAlex、GDELT、DuckDuckGoはいずれも英語データが最も充実している。日本語や他言語で主に展開される技術領域では、実際の活発さに対してスコアが低く出る可能性がある。PR Times Agentがこのバイアスを部分的に補完するが、限定的である。</p>
+
+    <p><strong>時間的遅延。</strong>学術論文のデータは出版から索引化まで数ヶ月〜1年の遅延がある。このためスコアリングでは現在年から2年前までの完全なデータを使用しており、直近1-2年の急変を捉えきれない場合がある。</p>
+
+    <p><strong>推定値の不確実性。</strong>特許、資金調達、キーワードの3次元はAI推定に依存しており、情報源がDuckDuckGoの検索結果であるため、網羅性と正確性に限界がある。信頼度比率（Confidence Ratio）がこの不確実性を定量化しているが、個別の推定値の精度を保証するものではない。</p>
+
+    <p><strong>テクノロジー・ハイプとの区別。</strong>メディア注目度やキーワード新規性が高くても、学術的勢いと引用の加速度が低い場合、それはフロンティアではなくハイプ（一時的な注目）である可能性がある。7次元のバランスを確認することで、この区別は可能だが、自動的に行われるわけではない。</p>
+
+    <div class="caution-box">
+      <div class="caution-box-label">Important</div>
+      <p>Frontier Detectorのスコアは技術の「価値」や「将来性」を直接評価するものではない。スコアが示すのは「現在この技術領域でどれだけ活発な動きが起きているか」である。スコアが低い成熟技術が社会的に重要でないわけではなく、スコアが高い領域が必ず投資に値するわけでもない。スコアは意思決定の出発点であり、Structural Inflection Point Scorerによる構造的変化点の評価や、産学マッチャーによる具体的な連携先の同定と組み合わせることで、より立体的な判断が可能になる。</p>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-section">
+      <div class="cta-text">Frontier Detectorで技術領域のフロンティアスコアを分析する</div>
+      <a href="https://frontier-detector.onrender.com/" class="cta-btn" target="_blank" rel="noopener">Frontier Detector を開く &rarr;</a>
+    </div>
+
+    <div class="footer">
+      <span>MIRATUKU Foresight Tools &mdash; Technology Frontier Detection</span>
+    </div>
+  </div>
+</body>
+</html>
