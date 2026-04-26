@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foresight Tools | MIRATUKU</title>
+  <link rel="icon" href="https://esse-sense.com/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FFFFFF;
+      --text: #121212;
+      --text-secondary: #555555;
+      --text-muted: #999999;
+      --accent: #121212;
+      --accent-warm: #CC1400;
+      --border: #D9D9D9;
+      --border-light: #E8E8E6;
+      --surface: #F7F7F5;
+      --card: #FFFFFF;
+      --font: "Noto Sans JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
+      --font-serif: "Noto Serif JP", "Hiragino Mincho ProN", Georgia, serif;
+      --radius: 0px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121212;
+        --text: #E0E0E0;
+        --text-secondary: #A0A0A0;
+        --text-muted: #666666;
+        --accent: #E0E0E0;
+        --accent-warm: #E05040;
+        --border: #333333;
+        --border-light: #2A2A2A;
+        --surface: #1A1A1A;
+        --card: #1E1E1E;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+    }
+
+    .section-header {
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: 1.4rem;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .section-subtitle {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .section-description {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 720px;
+      margin-bottom: 32px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 32px;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--text);
+    }
+
+    /* Architecture diagram */
+    .arch-diagram {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 20px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      margin-bottom: 32px;
+      overflow-x: auto;
+      flex-wrap: wrap;
+    }
+
+    .arch-stage {
+      padding: 10px 16px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--card);
+      white-space: nowrap;
+    }
+
+    .arch-stage-sub {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .arch-stage[data-role="input"] {
+      border-color: var(--accent-warm);
+      color: var(--accent-warm);
+    }
+
+    .arch-stage[data-role="output"] {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+
+    .arch-arrow {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* Tool cards grid */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 0;
+    }
+
+    .tool-card {
+      padding: 24px 20px;
+      border: none;
+      border-top: 2px solid var(--border);
+      background: var(--card);
+      transition: background 0.15s;
+    }
+
+    .tool-card:hover {
+      background: var(--surface);
+    }
+
+    .tool-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .tool-id {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--accent-warm);
+      letter-spacing: 0.04em;
+    }
+
+    .tool-name {
+      font-family: var(--font-serif);
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .tool-description {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      margin-bottom: 14px;
+    }
+
+    .tool-meta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .tool-features {
+      margin-bottom: 16px;
+    }
+
+    .tool-features li {
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      list-style: none;
+      padding-left: 12px;
+      position: relative;
+    }
+
+    .tool-features li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 9px;
+      width: 4px;
+      height: 4px;
+      background: var(--border);
+    }
+
+    .tool-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 18px;
+      background: var(--accent-warm);
+      color: #FFFFFF;
+      border: none;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.85;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 18px;
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      font-size: 0.78rem;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-secondary:hover {
+      opacity: 0.7;
+    }
+
+    /* Status badge */
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .status-live .status-dot { background: #2D8A4E; }
+    .status-live { color: #2D8A4E; }
+
+    /* Footer */
+    .footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-light);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 40px 16px 60px;
+      }
+
+      .tools-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .arch-diagram {
+        padding: 16px;
+      }
+
+      .section-title {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="https://yuyanishimura0312.github.io/miratuku-news-v2/" class="back-link">&larr; Insight News</a>
+
+    <section>
+      <div class="section-header">
+        <h1 class="section-title">Foresight Tools</h1>
+        <span class="section-subtitle">研究テーマ評価・技術フロンティア分析のための3ツール</span>
+      </div>
+      <p class="section-description">
+        研究テーマや技術領域の投資タイミング・成熟度・連携可能性を多角的に評価するツール群。Structural Inflection Point理論、5エージェント並列分析、産学連携バックキャスト手法をそれぞれ実装している。
+      </p>
+
+      <div class="arch-diagram">
+        <div class="arch-stage" data-role="input">研究テーマ / 技術名<span class="arch-stage-sub">ユーザー入力</span></div>
+        <span class="arch-arrow">&rarr;</span>
+        <div class="arch-stage">変曲点スコアリング<span class="arch-stage-sub">5フレームワーク</span></div>
+        <span class="arch-arrow">&rarr;</span>
+        <div class="arch-stage">フロンティア分析<span class="arch-stage-sub">5 AIエージェント</span></div>
+        <span class="arch-arrow">&rarr;</span>
+        <div class="arch-stage">産学マッチング<span class="arch-stage-sub">500社バックキャスト</span></div>
+        <span class="arch-arrow">&rarr;</span>
+        <div class="arch-stage" data-role="output">評価・レポート</div>
+      </div>
+
+      <div class="tools-grid">
+        <!-- Structural Inflection Scorer -->
+        <div class="tool-card">
+          <div class="tool-card-header">
+            <span class="tool-id">SIS</span>
+            <span class="tool-name">Structural Inflection Scorer</span>
+          </div>
+          <p class="tool-description">
+            研究テーマをStructural Inflection Point理論に基づく5つの学術フレームワークでスコアリングし、最適な投資タイミングを判定する。
+          </p>
+          <ul class="tool-features">
+            <li>Scheffer Critical Transitions（臨界遷移）</li>
+            <li>Geels MLP（多層パースペクティブ）</li>
+            <li>Perez Technological Revolutions（技術革命）</li>
+            <li>North Institutional Economics（制度経済学）</li>
+            <li>Dixit-Pindyck Real Options（リアルオプション）</li>
+          </ul>
+          <div class="tool-meta">
+            <span>Static HTML</span>
+            <span>Claude API</span>
+            <span>SVGレーダーチャート</span>
+            <span class="status status-live"><span class="status-dot"></span>稼働中</span>
+          </div>
+          <div class="tool-actions">
+            <a href="https://yuyanishimura0312.github.io/structural-inflection-scorer/" class="btn-primary" target="_blank" rel="noopener">開く &rarr;</a>
+            <a href="https://yuyanishimura0312.github.io/structural-inflection-scorer/guide.html" class="btn-secondary" target="_blank" rel="noopener">使い方</a>
+          </div>
+        </div>
+
+        <!-- Frontier Detector -->
+        <div class="tool-card">
+          <div class="tool-card-header">
+            <span class="tool-id">FD</span>
+            <span class="tool-name">Frontier Detector</span>
+          </div>
+          <p class="tool-description">
+            技術名を入力すると、5つの専門AIエージェントが並列で学術論文・特許・ニュース・資金調達・キーワードを分析し、7次元のフロンティアスコアを算出する。
+          </p>
+          <ul class="tool-features">
+            <li>Academic Analyst（論文数・引用・研究者）</li>
+            <li>Patent Analyst（特許出願動向）</li>
+            <li>Media Analyst（ニュース報道傾向）</li>
+            <li>Funding Analyst（投資・資金調達動向）</li>
+            <li>Keyword Analyst（新興キーワード・サブトピック）</li>
+          </ul>
+          <div class="tool-meta">
+            <span>Python / FastAPI</span>
+            <span>5 AI Agents</span>
+            <span>SQLite</span>
+            <span class="status status-live"><span class="status-dot"></span>稼働中</span>
+          </div>
+          <div class="tool-actions">
+            <a href="https://frontier-detector.onrender.com/" class="btn-primary" target="_blank" rel="noopener">開く &rarr;</a>
+          </div>
+        </div>
+
+        <!-- Sangaku Matcher -->
+        <div class="tool-card">
+          <div class="tool-card-header">
+            <span class="tool-id">SM</span>
+            <span class="tool-name">産学マッチャー</span>
+          </div>
+          <p class="tool-description">
+            大学の技術シーズを入力し、500社規模の企業公開情報（IR・有報・特許・統合報告書）からバックキャストで潜在ニーズを推定。産学連携の可能性を仮説化しランキング出力する。
+          </p>
+          <ul class="tool-features">
+            <li>技術的近接性スコアリング</li>
+            <li>吸収能力（Absorptive Capacity）評価</li>
+            <li>連携実績ベースの三角検証</li>
+            <li>公開情報からの潜在ニーズ推定（商用前例なし）</li>
+          </ul>
+          <div class="tool-meta">
+            <span>Python</span>
+            <span>バックキャスト型</span>
+            <span>500社対象</span>
+            <span class="status status-live"><span class="status-dot"></span>稼働中</span>
+          </div>
+          <div class="tool-actions">
+            <a href="https://sangaku-matcher.onrender.com/" class="btn-primary" target="_blank" rel="noopener">開く &rarr;</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <span>MIRATUKU Foresight Tools</span>
+        <span>3 tools / All operational</span>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
