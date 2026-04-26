@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>構造的変化点理論 | Foresight Tools</title>
+  <link rel="icon" href="https://esse-sense.com/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FFFFFF;
+      --text: #121212;
+      --text-secondary: #555555;
+      --text-muted: #999999;
+      --accent: #121212;
+      --accent-warm: #CC1400;
+      --border: #D9D9D9;
+      --border-light: #E8E8E6;
+      --surface: #F7F7F5;
+      --card: #FFFFFF;
+      --font: "Noto Sans JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
+      --font-serif: "Noto Serif JP", "Hiragino Mincho ProN", Georgia, serif;
+      --radius: 0px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121212;
+        --text: #E0E0E0;
+        --text-secondary: #A0A0A0;
+        --text-muted: #666666;
+        --accent: #E0E0E0;
+        --accent-warm: #E05040;
+        --border: #333333;
+        --border-light: #2A2A2A;
+        --surface: #1A1A1A;
+        --card: #1E1E1E;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 48px 24px 96px;
+    }
+
+    /* Navigation */
+    .nav-bar {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 40px;
+      font-size: 0.78rem;
+    }
+
+    .nav-bar a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-bar a:hover { color: var(--text); }
+
+    .nav-bar .sep { color: var(--border); }
+
+    /* Article header */
+    .article-header {
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid var(--accent);
+    }
+
+    .article-category {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--accent-warm);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .article-title {
+      font-family: var(--font-serif);
+      font-size: 1.6rem;
+      font-weight: 900;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+      margin-bottom: 8px;
+    }
+
+    .article-subtitle {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .article-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* Table of Contents */
+    .toc {
+      border-top: 1px solid var(--border-light);
+      border-bottom: 1px solid var(--border-light);
+      padding: 20px 0;
+      margin-bottom: 40px;
+    }
+
+    .toc-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .toc ol {
+      list-style: none;
+      counter-reset: toc;
+    }
+
+    .toc ol li {
+      counter-increment: toc;
+    }
+
+    .toc ol li a {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 3px 0;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .toc ol li a::before {
+      content: counter(toc);
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--accent-warm);
+      min-width: 14px;
+    }
+
+    .toc ol li a:hover { color: var(--text); }
+
+    /* Section headings */
+    h2 {
+      font-family: var(--font-serif);
+      font-size: 1.12rem;
+      font-weight: 900;
+      margin: 48px 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-light);
+      scroll-margin-top: 24px;
+    }
+
+    h3 {
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin: 28px 0 10px;
+      color: var(--text);
+    }
+
+    /* Body text */
+    p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      line-height: 1.9;
+    }
+
+    .lead {
+      font-size: 0.92rem;
+      color: var(--text);
+      line-height: 2.0;
+      margin-bottom: 28px;
+    }
+
+    /* Blockquote */
+    blockquote {
+      border-left: 3px solid var(--accent-warm);
+      padding: 16px 20px;
+      margin: 24px 0;
+      background: var(--surface);
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+
+    blockquote strong { color: var(--text); }
+
+    /* Framework cards */
+    .framework-card {
+      border-top: 2px solid var(--border);
+      padding: 20px 0;
+    }
+
+    .framework-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .framework-color {
+      width: 4px;
+      height: 36px;
+      flex-shrink: 0;
+    }
+
+    .framework-name {
+      font-family: var(--font-serif);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .framework-theory {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-left: 14px;
+    }
+
+    .framework-body {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      line-height: 1.85;
+      margin-top: 8px;
+    }
+
+    .framework-scale {
+      display: flex;
+      gap: 0;
+      margin-top: 12px;
+    }
+
+    .scale-segment {
+      flex: 1;
+      padding: 8px 10px;
+      font-size: 0.72rem;
+      line-height: 1.5;
+      border-top: 2px solid var(--border);
+    }
+
+    .scale-segment-label {
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .scale-high { border-top-color: #2D8A4E; }
+    .scale-mid { border-top-color: #B8863E; }
+    .scale-low { border-top-color: var(--text-muted); }
+
+    /* Weight table */
+    .weight-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      margin: 16px 0;
+    }
+
+    .weight-table th {
+      text-align: left;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .weight-table td {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-secondary);
+      vertical-align: top;
+    }
+
+    .weight-table td:first-child {
+      font-weight: 600;
+      color: var(--text);
+      width: 200px;
+    }
+
+    .weight-table td:last-child {
+      text-align: right;
+      font-weight: 700;
+      width: 60px;
+    }
+
+    /* Trigger grid */
+    .trigger-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      margin: 16px 0;
+    }
+
+    .trigger-item {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border-light);
+      border-right: 1px solid var(--border-light);
+    }
+
+    .trigger-item:nth-child(even) { border-right: none; }
+
+    .trigger-item-name {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .trigger-item-desc {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .trigger-item.compound {
+      grid-column: span 2;
+      border-right: none;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    /* Timing table */
+    .timing-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 0.82rem;
+    }
+
+    .timing-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+
+    .timing-label {
+      font-weight: 700;
+      min-width: 100px;
+      flex-shrink: 0;
+    }
+
+    .timing-desc {
+      color: var(--text-secondary);
+      flex: 1;
+    }
+
+    /* Caution box */
+    .caution-box {
+      border-top: 2px solid var(--accent-warm);
+      padding: 16px 0;
+      margin: 32px 0;
+    }
+
+    .caution-box-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--accent-warm);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .caution-box p {
+      font-size: 0.82rem;
+      margin-bottom: 8px;
+    }
+
+    .caution-box p:last-child { margin-bottom: 0; }
+
+    /* Misread list */
+    .misread-item {
+      padding: 14px 0 14px 16px;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      line-height: 1.85;
+      position: relative;
+    }
+
+    .misread-item::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 22px;
+      width: 6px;
+      height: 6px;
+      background: var(--accent-warm);
+    }
+
+    .misread-item strong {
+      color: var(--text);
+    }
+
+    /* CTA */
+    .cta-section {
+      border-top: 2px solid var(--accent);
+      padding: 24px 0;
+      margin-top: 48px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .cta-text {
+      flex: 1;
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      min-width: 200px;
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 24px;
+      background: var(--accent-warm);
+      color: #FFFFFF;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .cta-btn:hover { opacity: 0.85; }
+
+    .cta-btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 24px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      font-weight: 500;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      transition: opacity 0.2s;
+    }
+
+    .cta-btn-secondary:hover { opacity: 0.7; }
+
+    /* Footer */
+    .footer {
+      margin-top: 48px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-light);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 32px 16px 64px; }
+      .article-title { font-size: 1.3rem; }
+      .trigger-grid { grid-template-columns: 1fr; }
+      .trigger-item { border-right: none; }
+      .trigger-item.compound { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="nav-bar">
+      <a href="index.html">&larr; Foresight Tools</a>
+      <span class="sep">/</span>
+      <span style="color:var(--text-secondary)">Report</span>
+    </nav>
+
+    <header class="article-header">
+      <div class="article-category">Methodology Report</div>
+      <h1 class="article-title">構造的変化点理論<br>Structural Inflection Point Theory</h1>
+      <p class="article-subtitle">技術の成熟度ではなく、外部環境の構造変化から投資の最適タイミングを判定する理論的フレームワーク</p>
+      <div class="article-meta">
+        <span>MIRATUKU Foresight Tools</span>
+        <span>5 Frameworks</span>
+        <span>5 Trigger Types</span>
+      </div>
+    </header>
+
+    <nav class="toc">
+      <div class="toc-label">Contents</div>
+      <ol>
+        <li><a href="#concept">構造的変化点とは何か</a></li>
+        <li><a href="#why">なぜ技術成熟度ではなく構造変化を測るのか</a></li>
+        <li><a href="#frameworks">5つの理論的フレームワーク</a></li>
+        <li><a href="#scoring">スコアリング方法</a></li>
+        <li><a href="#triggers">5つのトリガー類型</a></li>
+        <li><a href="#timing">投資タイミング判定</a></li>
+        <li><a href="#limitations">限界と誤読の防止</a></li>
+      </ol>
+    </nav>
+
+    <p class="lead">
+      構造的変化点（Structural Inflection Point）とは、技術を取り巻く外部環境——規制、地政学、需要構造——が構造的に変化し、それまでニッチだった技術が突然「必要不可欠な解決策」に変貌する転換点のことである。本レポートは、この理論の全体像、5つの学術的フレームワーク、スコアリング方法、トリガー分類、投資タイミング判定の考え方を体系的に記述する。
+    </p>
+
+    <!-- 1. 概念 -->
+    <h2 id="concept">構造的変化点とは何か</h2>
+
+    <p>技術の商業化において、複数の「遅い変数」——技術コスト、規制環境、インフラ整備度、補完財の成熟度、社会的受容度——は、通常は緩慢に変化し続けている。しかし、これらの変数が蓄積的に閾値に達すると、支配的な社会技術的レジーム（既存産業構造）の安定性が崩壊し、系全体が新たな安定状態へ不連続に遷移する。この転換点が「構造的変化点」である。</p>
+
+    <p>重要なのは、この転換が技術それ自体の進歩によって引き起こされるのではなく、技術を取り巻く外部の構造条件の変化によって発生するという点である。技術が原理実証を完了していても、外部条件が整わなければ商業化のタイミングは到来しない。逆に、外部条件が急変すれば、ある日突然「あったら便利な技術」が「今すぐ必要なボトルネック解消策」へと位置づけが変わる。</p>
+
+    <blockquote>
+      たとえば、量子コンピュータの冷却技術（KTWPA読み出しモジュール）は数年前から原理実証済みであったが、Google Willowが2024年に105量子ビットでエラー訂正閾値を突破したことで、数千〜数万量子ビットへのスケールアップが「いずれ必要になるかもしれない技術」から「今すぐ解決しなければならない物理的ボトルネック」へと転換した。従来のHEMT増幅器では発熱が大きすぎて量子ビット数の増加に耐えられないという物理的制約が顕在化したのである。
+    </blockquote>
+
+    <!-- 2. なぜ構造変化か -->
+    <h2 id="why">なぜ技術成熟度ではなく構造変化を測るのか</h2>
+
+    <p>従来の技術投資判断は、TRL（Technology Readiness Level）に代表される「技術がどれだけ成熟しているか」を主たる指標としてきた。しかし学術研究は、技術の成熟度と商業化の成功が一致しないことを繰り返し示している。TRLが高い技術であっても市場が創出されなければ商業化は実現しない。逆にTRLが中程度であっても、外部環境の急変が十分な需要と資金を創出すれば、商業化は加速する。</p>
+
+    <p>構造的変化点理論が提起する問いは、「この技術はどれだけ完成に近いか」ではなく、「この技術を必要とする外部条件がどれだけ整いつつあるか」である。この問いを5つの独立した学術的フレームワークから多角的に評価することで、投資タイミングの判断に理論的根拠を与える。</p>
+
+    <p>この発想の転換は実務的にも重要な帰結をもたらす。技術の品質を評価するには深い専門知識が必要だが、外部環境の構造変化——規制の確定、地政学的再編、需要構造のシフト——は公開情報から追跡可能である。つまり構造的変化点理論は、技術の専門家でなくとも、投資タイミングの妥当性を構造的に検証するためのフレームワークを提供する。</p>
+
+    <!-- 3. 5つのフレームワーク -->
+    <h2 id="frameworks">5つの理論的フレームワーク</h2>
+
+    <p>各テーマは以下の5つの学術理論に基づく軸で独立に評価される。いずれも「変化点の近さ」を異なる角度から判定するものであり、5軸を組み合わせることで構造変化の多面的な姿が浮かび上がる。</p>
+
+    <!-- Scheffer -->
+    <div class="framework-card">
+      <div class="framework-header">
+        <div class="framework-color" style="background:#783c28;"></div>
+        <div>
+          <div class="framework-name">軸1: 閾値への接近度</div>
+          <div class="framework-theory">Scheffer臨界遷移論（Critical Transitions, 2009）</div>
+        </div>
+      </div>
+      <div class="framework-body">
+        <p>Marten Schefferの臨界遷移論は、複雑系が「折り畳み分岐（fold bifurcation）」を通じて不連続にレジームシフトするメカニズムを理論化した。生態学、気候学から導出されたこのモデルは、技術市場にも適用できる。コスト低下、規制変化、インフラ整備といった「遅い変数」が緩慢に変化し続け、ある閾値に到達した瞬間に系全体が新たな均衡点へジャンプする。</p>
+        <p>この軸が評価するのは、遅い変数が臨界点にどれだけ近づいているかである。臨界減速のシグナル——市場の応答鈍化、プレイヤー間の二極化、小さな外乱への過剰反応——が観察される場合、スコアは高くなる。</p>
+      </div>
+      <div class="framework-scale">
+        <div class="scale-segment scale-high"><div class="scale-segment-label">7-10</div>遅い変数が明確に閾値に接近。臨界減速のシグナルが観察可能。</div>
+        <div class="scale-segment scale-mid"><div class="scale-segment-label">4-6</div>遅い変数が変化しているが、閾値までの距離が不確実。</div>
+        <div class="scale-segment scale-low"><div class="scale-segment-label">1-3</div>遅い変数の変化が緩慢で、臨界点は遠い。</div>
+      </div>
+    </div>
+
+    <!-- Geels -->
+    <div class="framework-card">
+      <div class="framework-header">
+        <div class="framework-color" style="background:#A86B50;"></div>
+        <div>
+          <div class="framework-name">軸2: 外圧と機会の窓</div>
+          <div class="framework-theory">Geels多層的視座（Multi-Level Perspective, 2002）</div>
+        </div>
+      </div>
+      <div class="framework-body">
+        <p>Frank Geelsの多層的視座（MLP）は、技術転換を3つの層——ランドスケープ（巨視的外圧）、レジーム（既存の社会技術的体制）、ニッチ（新興技術）——の相互作用として記述する。ランドスケープからの圧力（地政学的変化、気候政策、パンデミック等）がレジームの安定性を崩すとき、ニッチ技術に「機会の窓」が開く。</p>
+        <p>この軸が評価するのは、外部からの圧力が既存産業をどの程度不安定化させ、新興技術への機会の窓がどれだけ開いているかである。</p>
+      </div>
+      <div class="framework-scale">
+        <div class="scale-segment scale-high"><div class="scale-segment-label">7-10</div>ランドスケープ圧力がレジームを明確に不安定化。機会の窓が開いている。</div>
+        <div class="scale-segment scale-mid"><div class="scale-segment-label">4-6</div>圧力は存在するが、レジームの抵抗力がまだ強い。窓は半開き。</div>
+        <div class="scale-segment scale-low"><div class="scale-segment-label">1-3</div>ランドスケープ圧力が弱い。レジームが安定。窓は閉じている。</div>
+      </div>
+    </div>
+
+    <!-- Perez -->
+    <div class="framework-card">
+      <div class="framework-header">
+        <div class="framework-color" style="background:#5a7a52;"></div>
+        <div>
+          <div class="framework-name">軸3: 技術革命サイクル上の位置</div>
+          <div class="framework-theory">Perez技術革命論（Technological Revolutions and Financial Capital, 2002）</div>
+        </div>
+      </div>
+      <div class="framework-body">
+        <p>Carlota Perezの技術革命波動論は、過去250年の5つの技術革命を分析し、各革命が「導入期（投機的関心が先行する時期）」と「展開期（社会に本格普及する時期）」を持ち、その間に制度的な転換点が存在することを示した。導入期にはバブルと投機が先行し、転換点を経て展開期に入ると、制度的・社会的な受け入れ態勢が整い、技術が社会基盤として定着する。</p>
+        <p>この軸が評価するのは、対象テーマが関連する技術パラダイムの中で、導入期と展開期の転換点のどちら側に位置しているかである。</p>
+      </div>
+      <div class="framework-scale">
+        <div class="scale-segment scale-high"><div class="scale-segment-label">7-10</div>導入期を終え制度的転換点に位置。展開期入りの兆候。</div>
+        <div class="scale-segment scale-mid"><div class="scale-segment-label">4-6</div>導入期の中盤。投機的関心はあるが制度的転換は未到来。</div>
+        <div class="scale-segment scale-low"><div class="scale-segment-label">1-3</div>導入期の初期。基礎研究フェーズ。</div>
+      </div>
+    </div>
+
+    <!-- North -->
+    <div class="framework-card">
+      <div class="framework-header">
+        <div class="framework-color" style="background:#2c5f8a;"></div>
+        <div>
+          <div class="framework-name">軸4: 制度的障壁の変化</div>
+          <div class="framework-theory">North制度経済学（Institutions, Institutional Change and Economic Performance, 1990）</div>
+        </div>
+      </div>
+      <div class="framework-body">
+        <p>Douglass Northのノーベル賞受賞業績は、経済パフォーマンスの差異が制度（法律、規制、社会規範）の違いによって説明されることを示した。技術の商業化においても、規制の確定、標準化の進展、認証制度の運用開始は、取引費用を急落させることで新たな市場需要を直接創出する。</p>
+        <p>この軸が評価するのは、規制・標準・認証といった制度的変化が技術の商業化をどの程度後押ししているかである。具体的な規制変化が確認できる場合、スコアは高くなる。</p>
+      </div>
+      <div class="framework-scale">
+        <div class="scale-segment scale-high"><div class="scale-segment-label">7-10</div>具体的な規制変化・標準確定・認証制度の開始が確認できる。</div>
+        <div class="scale-segment scale-mid"><div class="scale-segment-label">4-6</div>規制議論が進行中だが未確定。パブリックコメント段階等。</div>
+        <div class="scale-segment scale-low"><div class="scale-segment-label">1-3</div>規制的変化の兆候が乏しい。既存の制度的障壁が高い。</div>
+      </div>
+    </div>
+
+    <!-- Dixit-Pindyck -->
+    <div class="framework-card">
+      <div class="framework-header">
+        <div class="framework-color" style="background:#C9A96E;"></div>
+        <div>
+          <div class="framework-name">軸5: 不確実性の解消度</div>
+          <div class="framework-theory">Dixit-Pindyckリアルオプション理論（Investment under Uncertainty, 1994）</div>
+        </div>
+      </div>
+      <div class="framework-body">
+        <p>Avinash DixitとRobert Pindyckのリアルオプション理論は、不確実性が高い環境では「待つこと」自体にオプション価値があることを示した。規制の方向性が不明確な間は、早く動いても後で方針が変わるリスクがある。しかし規制が確定し、大口顧客がコミットし、標準が決まると、この「待機オプション」の価値が急落し、投資の最適タイミングが到来する。</p>
+        <p>この軸が評価するのは、投資判断に関わる重要な不確実性がどの程度解消されているかである。不確実性が急減している局面では、スコアが高くなり、今が動くタイミングであることを示す。</p>
+      </div>
+      <div class="framework-scale">
+        <div class="scale-segment scale-high"><div class="scale-segment-label">7-10</div>規制確定、大口需要家のコミットメント等で不確実性が急減。</div>
+        <div class="scale-segment scale-mid"><div class="scale-segment-label">4-6</div>一部の不確実性は解消されたが、重要な不確実性が残存。</div>
+        <div class="scale-segment scale-low"><div class="scale-segment-label">1-3</div>不確実性が高く、待機が合理的。</div>
+      </div>
+    </div>
+
+    <!-- 4. スコアリング -->
+    <h2 id="scoring">スコアリング方法</h2>
+
+    <p>各軸は1〜10の整数でスコアリングされ、加重平均により総合スコア（composite score）が算出される。加重配分は以下の通りである。</p>
+
+    <table class="weight-table">
+      <thead>
+        <tr>
+          <th>評価軸</th>
+          <th>理論的根拠</th>
+          <th>重み</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>閾値への接近度（Scheffer）</td>
+          <td>不連続な転換の差し迫り具合が投資タイミングに最も直結する</td>
+          <td>25%</td>
+        </tr>
+        <tr>
+          <td>外圧と機会の窓（Geels）</td>
+          <td>外部圧力によるレジーム不安定化が市場創出の前提条件</td>
+          <td>20%</td>
+        </tr>
+        <tr>
+          <td>技術革命サイクル（Perez）</td>
+          <td>マクロ的なサイクル位置は方向性を示すが直接の投資判断根拠にはなりにくい</td>
+          <td>15%</td>
+        </tr>
+        <tr>
+          <td>制度的障壁の変化（North）</td>
+          <td>規制・標準の確定は需要を直接的に創出する</td>
+          <td>20%</td>
+        </tr>
+        <tr>
+          <td>不確実性の解消（Dixit-Pindyck）</td>
+          <td>待機オプション価値の消失は投資の「今でしょ」判定に直結</td>
+          <td>20%</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Scheffer臨界遷移論が最も高い加重（25%）を持つのは、不連続な転換の差し迫り具合が投資タイミングの判断に最も直結するためである。Perez技術革命論の加重が最も低い（15%）のは、マクロ的なサイクル上の位置は方向性を示す指標としては有用だが、具体的な投資タイミングの根拠としてはやや抽象的であるためである。</p>
+
+    <p>加えて、各評価には「AI確信度」（0.0〜1.0）と「不可逆性スコア」（1〜10）が付与される。AI確信度は、入力情報の具体性と評価の根拠の確かさを反映する。不可逆性スコアは、構造変化が元に戻る可能性の低さを示し、高いほど変化が定着する確度が高いことを意味する。</p>
+
+    <!-- 5. トリガー -->
+    <h2 id="triggers">5つのトリガー類型</h2>
+
+    <p>構造的変化点を引き起こす外部トリガーは、以下の5類型に分類される。トリガーの同定は、変化点の性質を理解し、適切な対応戦略を選択するうえで重要である。</p>
+
+    <div class="trigger-grid">
+      <div class="trigger-item">
+        <div class="trigger-item-name">規制確定型</div>
+        <div class="trigger-item-desc">規制当局が新標準や義務を確定することで需要を直接創出する。NIST量子暗号標準、EUバッテリー規則、EU SAF義務化などが典型例。</div>
+      </div>
+      <div class="trigger-item">
+        <div class="trigger-item-name">地政学的再編型</div>
+        <div class="trigger-item-desc">地政学的緊張がサプライチェーンを再編し、代替技術の需要を創出する。中国レアアース輸出規制、米CHIPS法、経済安全保障推進法など。</div>
+      </div>
+      <div class="trigger-item">
+        <div class="trigger-item-name">物理的限界到達型</div>
+        <div class="trigger-item-desc">既存技術が物理的限界に到達し、代替技術が「選択肢」から「必須要件」に転換する。量子コンピュータのHEMT発熱問題が代表例。</div>
+      </div>
+      <div class="trigger-item">
+        <div class="trigger-item-name">需要構造転換型</div>
+        <div class="trigger-item-desc">市場の需要構造が質的に変化し、既存の価値体系が逆転する。削減型から除去型カーボンクレジットへの381%プレミアムシフトなど。</div>
+      </div>
+      <div class="trigger-item compound">
+        <div class="trigger-item-name">複合型</div>
+        <div class="trigger-item-desc">上記複数のトリガーが同時に発生し、相互に増幅する。最も強力な構造的変化点はこの類型として出現する。たとえばレアメタルのバイオリファイニングでは、地政学リスク（中国の輸出規制）と規制強化（EU電池規則、米IRAのリサイクル要件）が同時に作用している。</div>
+      </div>
+    </div>
+
+    <!-- 6. タイミング -->
+    <h2 id="timing">投資タイミング判定</h2>
+
+    <p>総合スコアと各軸のバランスから、投資の最適タイミングを5段階で判定する。この判定は「この技術に投資すべきか否か」を答えるものではなく、「構造的条件から見て、今がどのフェーズにあるか」を示すものである。</p>
+
+    <div class="timing-row">
+      <div class="timing-dot" style="background:var(--text-muted);"></div>
+      <div class="timing-label">時期尚早</div>
+      <div class="timing-desc">変化点まで3年以上。基礎研究段階にあり、構造変化のシグナルはまだ弱い。定期的な再評価と情報収集を続ける局面。</div>
+    </div>
+    <div class="timing-row">
+      <div class="timing-dot" style="background:#B8863E;"></div>
+      <div class="timing-label">接近中</div>
+      <div class="timing-desc">変化点まで1〜3年。弱いシグナルが観測され始めており、体制整備や小規模な先行投資を検討する準備段階。</div>
+    </div>
+    <div class="timing-row">
+      <div class="timing-dot" style="background:#2D8A4E;"></div>
+      <div class="timing-label">最適タイミング</div>
+      <div class="timing-desc">変化点の直前から直後。構造変化が明確に起きており、早期参入の優位性が最大化する局面。</div>
+    </div>
+    <div class="timing-row">
+      <div class="timing-dot" style="background:#A05A3C;"></div>
+      <div class="timing-label">通過中</div>
+      <div class="timing-desc">変化点を通過中。先行者が確立されつつあるが、早期フォロワーとして差別化できる切り口がまだ存在する。</div>
+    </div>
+    <div class="timing-row">
+      <div class="timing-dot" style="background:var(--accent-warm);"></div>
+      <div class="timing-label">機会逸失</div>
+      <div class="timing-desc">変化点通過済み。先行者優位が確立され参入障壁が高くなっている。次の変化点を探すか、異なる参入軸の検討を推奨。</div>
+    </div>
+
+    <!-- 7. 限界 -->
+    <h2 id="limitations">限界と誤読の防止</h2>
+
+    <p>構造的変化点理論に基づくスコアリングを正しく活用するためには、以下の限界と誤読のパターンを理解しておく必要がある。</p>
+
+    <div class="misread-item">
+      <strong>スコアが高い = 良い技術ではない。</strong>スコアは技術の品質や将来性そのものを評価しているのではなく、外部環境のタイミングが投資に適しているかどうかを示している。優れた技術であっても、構造的な条件が整っていなければスコアは低くなる。
+    </div>
+    <div class="misread-item">
+      <strong>入力の具体性がスコアに影響する。</strong>AIは入力テキストに含まれる具体的なシグナル（規制変化、需要構造の変化など）を手がかりに評価を行う。「量子コンピュータ」とだけ入力するよりも、背景となる構造変化を記述した方が精緻な評価が得られる。
+    </div>
+    <div class="misread-item">
+      <strong>スコアが低くても戦略的に早期着手する意味はある。</strong>競合が少ない段階での参入は、変化点が到来したときに大きなアドバンテージになる。スコアが低いことは「やめるべき」ではなく「まだ機が熟していない」という情報である。
+    </div>
+    <div class="misread-item">
+      <strong>5軸のバランスが総合スコアより重要な場合がある。</strong>たとえば制度的障壁の変化が8点で閾値への接近度が3点の場合、規制環境は整いつつあるが技術側の変数がまだ閾値に到達していないことを意味する。どの軸が高くどの軸が低いかが、具体的な投資戦略の根拠になる。
+    </div>
+
+    <div class="caution-box">
+      <div class="caution-box-label">Important</div>
+      <p>本ツールはAIによる推論に基づく評価であり、投資判断の唯一の根拠として使用すべきではない。スコアは構造的分析を始めるための「問いの枠組み」として位置づけるべきであり、評価に含まれる「根拠」と「検出されたシグナル」を手がかりに、追加調査や関係者との議論へつなげることで判断の精度が高まる。</p>
+      <p>定期的な再評価を推奨する。構造的変化点は外部環境の変化によって形成されるため、規制の確定、地政学的イベント、業界の動きに応じて同じテーマのスコアが変動する。重要なテーマについては、変化の方向性と速度を時系列で追跡することが望ましい。</p>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-section">
+      <div class="cta-text">Structural Inflection Point Scorerで研究テーマを評価する</div>
+      <a href="https://yuyanishimura0312.github.io/structural-inflection-scorer/" class="cta-btn" target="_blank" rel="noopener">Scorer を開く &rarr;</a>
+      <a href="https://yuyanishimura0312.github.io/structural-inflection-scorer/guide.html" class="cta-btn-secondary" target="_blank" rel="noopener">使い方ガイド</a>
+    </div>
+
+    <div class="footer">
+      <span>MIRATUKU Foresight Tools &mdash; Structural Inflection Point Theory</span>
+    </div>
+  </div>
+</body>
+</html>
