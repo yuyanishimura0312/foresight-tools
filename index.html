@@ -337,7 +337,7 @@
       <div class="arch-diagram">
         <div class="arch-stage" data-role="input">研究テーマ / 技術名<span class="arch-stage-sub">ユーザー入力</span></div>
         <span class="arch-arrow">&rarr;</span>
-        <div class="arch-stage">変曲点スコアリング<span class="arch-stage-sub">5フレームワーク</span></div>
+        <div class="arch-stage">AI加速判定 + 変曲点スコアリング<span class="arch-stage-sub">2段階判定</span></div>
         <span class="arch-arrow">&rarr;</span>
         <div class="arch-stage">フロンティア分析<span class="arch-stage-sub">5 AIエージェント</span></div>
         <span class="arch-arrow">&rarr;</span>
@@ -350,23 +350,21 @@
         <!-- Structural Inflection Scorer -->
         <div class="tool-card">
           <div class="tool-card-header">
-            <span class="tool-id">SIS</span>
+            <span class="tool-id">SIS v2</span>
             <span class="tool-name">Structural Inflection Scorer</span>
           </div>
           <p class="tool-description">
-            研究テーマをStructural Inflection Point理論に基づく5つの学術フレームワークでスコアリングし、最適な投資タイミングを判定する。
+            2段階判定で研究テーマの投資タイミングを評価。Stage 1でAI Acceleration Evidence DB（477言及・394出典）とマッチングし「生成AIによる加速領域か」をゲート判定。Stage 2で5つの学術フレームワークによる構造的変化点スコアリングを実行する。
           </p>
           <ul class="tool-features">
-            <li>Scheffer Critical Transitions（臨界遷移）</li>
-            <li>Geels MLP（多層パースペクティブ）</li>
-            <li>Perez Technological Revolutions（技術革命）</li>
-            <li>North Institutional Economics（制度経済学）</li>
-            <li>Dixit-Pindyck Real Options（リアルオプション）</li>
+            <li>Stage 1: AI加速ゲート判定（97ドメイン・477言及データベース）</li>
+            <li>Stage 2: Scheffer臨界遷移 / Geels MLP / Perez技術革命 / North制度経済学 / Dixit-Pindyckリアルオプション</li>
+            <li>Stage 1のエビデンスをStage 2のプロンプトに注入し、AI固有の加速シグナルを評価に反映</li>
           </ul>
           <div class="tool-meta">
             <span>Static HTML</span>
             <span>Claude API</span>
-            <span>SVGレーダーチャート</span>
+            <span>477言及 Evidence DB</span>
             <span class="status status-live"><span class="status-dot"></span>稼働中</span>
           </div>
           <div class="tool-actions">
