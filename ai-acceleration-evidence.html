@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Acceleration Evidence Database | Foresight Tools</title>
+  <link rel="icon" href="https://esse-sense.com/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FFFFFF;
+      --text: #121212;
+      --text-secondary: #555555;
+      --text-muted: #999999;
+      --accent: #121212;
+      --accent-warm: #CC1400;
+      --border: #D9D9D9;
+      --border-light: #E8E8E6;
+      --surface: #F7F7F5;
+      --card: #FFFFFF;
+      --success: #2D8A4E;
+      --warning: #B8863E;
+      --info: #2c5f8a;
+      --font: "Noto Sans JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
+      --font-serif: "Noto Serif JP", "Hiragino Mincho ProN", Georgia, serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121212; --text: #E0E0E0; --text-secondary: #A0A0A0;
+        --text-muted: #666666; --accent: #E0E0E0; --accent-warm: #E05040;
+        --border: #333333; --border-light: #2A2A2A; --surface: #1A1A1A; --card: #1E1E1E;
+        --success: #4CAF50; --warning: #D4A44E; --info: #5B9BD5;
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+    .container { max-width: 760px; margin: 0 auto; padding: 48px 24px 96px; }
+    .nav-bar { display: flex; gap: 16px; align-items: center; margin-bottom: 40px; font-size: 0.78rem; }
+    .nav-bar a { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .nav-bar a:hover { color: var(--text); }
+    .nav-bar .sep { color: var(--border); }
+    .article-header { margin-bottom: 40px; padding-bottom: 24px; border-bottom: 2px solid var(--accent); }
+    .article-category { font-size: 0.72rem; font-weight: 700; color: var(--accent-warm); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+    .article-title { font-family: var(--font-serif); font-size: 1.6rem; font-weight: 900; line-height: 1.4; letter-spacing: -0.01em; margin-bottom: 8px; }
+    .article-subtitle { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; }
+    .article-meta { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; font-size: 0.72rem; color: var(--text-muted); }
+    .toc { border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); padding: 20px 0; margin-bottom: 40px; }
+    .toc-label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+    .toc ol { list-style: none; counter-reset: toc; }
+    .toc ol li { counter-increment: toc; }
+    .toc ol li a { display: flex; align-items: baseline; gap: 8px; padding: 3px 0; font-size: 0.82rem; color: var(--text-secondary); text-decoration: none; transition: color 0.15s; }
+    .toc ol li a::before { content: counter(toc); font-size: 0.68rem; font-weight: 700; color: var(--accent-warm); min-width: 14px; }
+    .toc ol li a:hover { color: var(--text); }
+    h2 { font-family: var(--font-serif); font-size: 1.12rem; font-weight: 900; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border-light); scroll-margin-top: 24px; }
+    h3 { font-size: 0.92rem; font-weight: 700; margin: 28px 0 10px; color: var(--text); }
+    p { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.9; }
+    .lead { font-size: 0.92rem; color: var(--text); line-height: 2.0; margin-bottom: 28px; }
+    blockquote { border-left: 3px solid var(--accent-warm); padding: 16px 20px; margin: 24px 0; background: var(--surface); font-size: 0.84rem; color: var(--text-secondary); line-height: 1.8; }
+    blockquote strong { color: var(--text); }
+
+    /* Stats grid */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 24px 0; }
+    @media (max-width: 640px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    .stat-card { background: var(--surface); padding: 16px; text-align: center; }
+    .stat-value { font-size: 1.5rem; font-weight: 900; color: var(--accent-warm); font-family: var(--font-serif); }
+    .stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 4px; }
+
+    /* Domain cards */
+    .domain-card { border-top: 3px solid var(--border); padding: 20px 0; }
+    .domain-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+    .domain-name { font-family: var(--font-serif); font-size: 0.95rem; font-weight: 700; }
+    .domain-name small { display: block; font-size: 0.76rem; font-weight: 400; color: var(--text-muted); margin-top: 2px; }
+    .domain-badge { flex-shrink: 0; padding: 4px 12px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; }
+    .badge-strong { background: #E6F4EC; color: var(--success); }
+    .badge-moderate { background: #FDF3E0; color: var(--warning); }
+    .badge-tentative { background: var(--surface); color: var(--text-muted); }
+    .domain-stats { display: flex; gap: 16px; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 8px; }
+    .domain-body { font-size: 0.84rem; color: var(--text-secondary); line-height: 1.85; }
+
+    /* Data table */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 16px 0; }
+    .data-table th { text-align: left; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; padding: 8px 6px; border-bottom: 1px solid var(--border); }
+    .data-table td { padding: 10px 6px; border-bottom: 1px solid var(--border-light); color: var(--text-secondary); vertical-align: top; }
+    .data-table td:first-child { font-weight: 600; color: var(--text); }
+    .data-table tr:hover { background: var(--surface); }
+
+    /* Mechanism tags */
+    .mech-tag { display: inline-block; background: rgba(204,20,0,0.08); color: var(--accent-warm); padding: 3px 10px; font-size: 0.72rem; font-weight: 500; margin: 2px 3px 2px 0; }
+
+    /* Improvement bar */
+    .improve-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border-light); font-size: 0.82rem; }
+    .improve-label { width: 200px; flex-shrink: 0; font-weight: 500; color: var(--text); }
+    .improve-bar-wrap { flex: 1; height: 8px; background: var(--surface); overflow: hidden; }
+    .improve-bar-before { height: 100%; background: var(--border); float: left; }
+    .improve-bar-after { height: 100%; background: var(--accent-warm); float: left; }
+    .improve-values { width: 140px; flex-shrink: 0; font-size: 0.76rem; color: var(--text-muted); text-align: right; }
+    .improve-values strong { color: var(--accent-warm); }
+
+    /* Caution box */
+    .caution-box { border-left: 3px solid var(--warning); background: #FDF8F0; padding: 16px 20px; margin: 24px 0; font-size: 0.84rem; color: var(--text-secondary); line-height: 1.8; }
+    .caution-label { font-size: 0.7rem; font-weight: 700; color: var(--warning); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+
+    /* Footer */
+    .report-footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border-light); font-size: 0.76rem; color: var(--text-muted); line-height: 1.7; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <nav class="nav-bar">
+    <a href="https://yuyanishimura0312.github.io/foresight-tools/">Foresight Tools</a>
+    <span class="sep">/</span>
+    <span style="color:var(--text)">AI Acceleration Evidence DB</span>
+  </nav>
+
+  <header class="article-header">
+    <div class="article-category">Research Report</div>
+    <h1 class="article-title">生成AIによる研究加速：エビデンスデータベース構築レポート</h1>
+    <div class="article-subtitle">AI Acceleration Evidence Database — 551件の学術的言及に基づく全18分野��AI加速度マッピング</div>
+    <div class="article-meta">
+      <span>2026年4月27日</span>
+      <span>西村勇也（ミラツク）</span>
+      <span>464ソース / 551言及 / 94評価ドメイン</span>
+    </div>
+  </header>
+
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-value">551</div><div class="stat-label">言及数</div></div>
+    <div class="stat-card"><div class="stat-value">464</div><div class="stat-label">出典数</div></div>
+    <div class="stat-card"><div class="stat-value">18/18</div><div class="stat-label">L1分野カバー</div></div>
+    <div class="stat-card"><div class="stat-value">33</div><div class="stat-label">AI加速確認</div></div>
+  </div>
+
+  <nav class="toc">
+    <div class="toc-label">目次</div>
+    <ol>
+      <li><a href="#summary">エグゼクティブサマリー</a></li>
+      <li><a href="#method">調査方法</a></li>
+      <li><a href="#domains">分野別分析（全18分野）</a></li>
+      <li><a href="#mechanisms">加速メカニズムの構造</a></li>
+      <li><a href="#criticism">批判的視点の整理</a></li>
+      <li><a href="#quality">品質精緻化の成果</a></li>
+      <li><a href="#app">Structural Inflection Scorer v2への接続</a></li>
+      <li><a href="#appendix">付録</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1. Executive Summary -->
+  <h2 id="summary">エグゼクティブサマリー</h2>
+  <p class="lead">生成AIが学術研究・産業イノベーションをどの領域で加速しているかを定量的に把握するため、世界中の学術文献・政府報告書・産業分析・ベンチマーク研究・批判的���考から551件の��加速言及」を体系的に収集し、97ドメイン���3階層）のエビデンスデータベースを構築した。</p>
+
+  <p>主要な発見は以下の5つである。第一に、<strong>��18大分野でAI加速のエビデンスが確認された</strong>。初期構築時にデータ不足だった農業・宇宙科��・工学��数学の4分���についても、ターゲット収集により全てカバ���が完了した。</p>
+
+  <p>第二に、<strong>生命科学（118言及）と計算機科学（68言及）が圧倒的なエビデンス基盤</strong>を持つ。中でも創薬（47言及）と材料設計（24言及）が最��豊富な根拠を有し、AlphaFoldの2024年ノーベル化学賞受賞やInsilico MedicineのPhase 2a試験成功（Nature Medicine, 2025）が象徴的成果である。</p>
+
+  <p>第三に、加速の主要メカニズムは「仮説生成」（313件で最頻出）、「分子・材料設計」（118件）、「文献統合」（81件）、「ワークフロー自動化」（70件）の4つに集中している。</p>
+
+  <p>第四に、<strong>批判的視点も58件収集</strong>されており、ハルシネ��ションの不可避性、スケーリング則の収穫逓減、企業の95%がゼロリターンという報告など、無視できない制約が��数の独立研究で確認されている。</p>
+
+  <p>第五に、データ品質の精緻化により、メカニズムカバレッジは7%から87%へ、コンセンサスレベルは35%から100%へ改善された。</p>
+
+  <!-- 2. Method -->
+  <h2 id="method">調査方法</h2>
+
+  <h3>データ収集アーキテクチャ</h3>
+  <p>9つの���門リサーチ���ームを配置し、段階的に収集を行った。初期構築で8チームが並列稼働し477件を収集、続いて品質診断に基づくターゲット収集（Team 9）で74件を追加した。</p>
+
+  <table class="data-table">
+    <thead><tr><th>チーム</th><th>担当領域</th><th>言及数</th><th>主要情報源</th></tr></thead>
+    <tbody>
+      <tr><td>Team 1</td><td>学術サーベイ・レビュー論文</td><td>85</td><td>Semantic Scholar, Nature/Science, arXiv</td></tr>
+      <tr><td>Team 2</td><td>政府・国際機関レポート</td><td>53</td><td>OECD, NSF, EU, 文科省, WHO</td></tr>
+      <tr><td>Team 3</td><td>ベンチマーク・実証研究</td><td>21</td><td>CASP, SWE-bench, WeatherBench</td></tr>
+      <tr><td>Team 4</td><td>産業レ���ート・シンクタンク</td><td>42</td><td>McKinsey, BCG, Stanford HAI, Gartner</td></tr>
+      <tr><td>Team 5</td><td>生命科学深堀り</td><td>71</td><td>AlphaFold, scGPT, DiffDock</td></tr>
+      <tr><td>Team 6</td><td>物理・化学・材料深堀り</td><td>57</td><td>GNoME, GraphCast, MACE</td></tr>
+      <tr><td>Team 7</td><td>社会科学・人文・創造深堀り</td><td>90</td><td>教育AI, リーガルテック, クリエイティブAI</td></tr>
+      <tr><td>Team 8</td><td>メタ分���・論争・反証</td><td>58</td><td>懐疑論, 限界指摘, AI hype批判</td></tr>
+      <tr><td>Team 9</td><td>空白ドメイン補強</td><td>74</td><td>ロボティクス, CV, 農業, 土木, 電気, 化学工学</td></tr>
+    </tbody>
+  </table>
+
+  <h3>出典の構成</h3>
+  <p>査読付き学術論文が61.9%、サーベイ論文が21.1%を占め、全体の83%が査読済みまたはサーベイ論文である。DOI付与率は55%。出版年は2024年が最多（203件、43.8%）で、2025年が133件（28.7%）と続き、直近2年間の文献が85%以上を占める。これは生成AI加速という現象そのものが2023年以降に顕在化した時系列を正確に反映している。</p>
+
+  <!-- 3. Domains -->
+  <h2 id="domains">分野別分析（全18分野）</h2>
+
+  <div class="domain-card" style="border-top-color: var(--accent-warm);">
+    <div class="domain-header">
+      <div class="domain-name">生命科学<small>Life Sciences</small></div>
+      <span class="domain-badge badge-strong">strong / 118言及</span>
+    </div>
+    <div class="domain-stats">102出典 / 87著者 / 6サブドメイン</div>
+    <div class="domain-body">
+      <p>全分野中最大のエビデンス基盤を有する。<strong>創薬（47言及）</strong>ではInsilico MedicineのISM001-055がAI設計薬剤として世界初のPhase 2a試験を完了し、FVC +98.4mLの改善を���した（Nature Medicine, 2025）。開発期間30ヶ月は従来の4〜6年を大幅に短縮する。<strong>タンパク質科学（19言及）</strong>ではAlphaFold3が物理ベース手法を50%上回る精度を達成し、ProteinMPNNは配列回収率52.4%対Rosetta 32.9%の優位を示した。<strong>ゲノミクス（17言及）</strong>ではscGPT（3,300万細胞）やEvo 2（9兆塩基対）などの基盤モデルが登場している。</p>
+    </div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-header">
+      <div class="domain-name">計算機科学・AI<small>Computer Science & AI</small></div>
+      <span class="domain-badge badge-strong">strong / 68言及</span>
+    </div>
+    <div class="domain-stats">52出典 / 96著者 / 5サブドメイン</div>
+    <div class="domain-body">
+      <p>SWE-benchはAIのコーディング問題解決率が2023年の4.4%から2024年に71.7%へ16倍改善したことを示す。GitHub Copilotの管理実験ではタスク完了��55.8%高速化��れた。今回の精緻化でコンピュータビジョン（7言及）とロボティクス（6言及）を新規追加。CellSAM（Nature Methods）が顕微鏡画像解析を自律化し、イチゴ収穫ロボットが95%検出精度・87%収穫率を達成した。</p>
+    </div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-header">
+      <div class="domain-name">経済・ビジネス<small>Economics & Business</small></div>
+      <span class="domain-badge badge-strong">strong / 44言及</span>
+    </div>
+    <div class="domain-stats">42出典 / 25著者</div>
+    <div class="domain-body">
+      <p>AI不正検知で検出率2倍・誤検知85%超削減が実現。サプライチェーン需要予測でMAPE削減10〜38%が確認された。ただしMcKinseyの調査では「80%以上の���業がEBITへの定量的インパクトを確認していない」。HR分野ではAIが白人名前を85%の確率で���先するバイアスが記録されている。</p>
+    </div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-header">
+      <div class="domain-name">医療・健康<small>Medicine & Health</small></div>
+      <span class="domain-badge badge-strong">strong / 39言及</span>
+    </div>
+    <div class="domain-stats">30出典 / 17著者</div>
+    <div class="domain-body">
+      <p>FDA��認AI医療機���が2015年の6件から2023年に223件へ急増。EU加盟国の74%がAI支援診断を導入済み。Med-GeminiはMedQAで91.1%を達成。精緻化でゲノム医療（7言及）を追加し、AlphaMissenseが7,100万変異の病原性スコアリングを実現した。</p>
+    </div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-header">
+      <div class="domain-name">物理・材料科学<small>Physical & Materials Sciences</small></div>
+      <span class="domain-badge badge-strong">strong / 32言及</span>
+    </div>
+    <div class="domain-stats">29出典 / 32著者</div>
+    <div class="domain-body">
+      <p>GNoME（Nature, 2023）が安定材料を28万1千件から221万件に拡張し、736件の実験的合成検証に成功。A-Labは17日間で57ターゲット中36件（71%��を合成した。EU委員会は材料科学のAI導入が年率約50%で成長と報告している。</p>
+    </div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-header">
+      <div class="domain-name">工学��技術<small>Engineering & Technology</small></div>
+      <span class="domain-badge badge-strong">strong / 31言及</span>
+    </div>
+    <div class="domain-stats">精緻化で6��及→31言及へ大幅��化</div>
+    <div class="domain-body">
+      <p>製造・ロボティクス（11言及）ではRandom Forestが故障検出96.2%精度を達成。土木工学（6言及）でYOLOv4の橋梁損傷検出、電気工学（7言及）でAlphaChipの��間レベルチップ配���（6時間未満）、化学工学（7言及）でFast-Catが「5日間で6ヶ月分の情報収集」を報告。</p>
+    </div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-header">
+      <div class="domain-name">社会科学<small>Social Sciences</small></div>
+      <span class="domain-badge badge-strong">strong / 26言及</span>
+    </div>
+    <div class="domain-body">
+      <p>Science誌（2025年）がLLM使用研究者のarXivでの論文投稿数+33%を実証。NLPが政治学・社会学の���究方法論を変革しつつあるが、米国59%・Twitter43%への地理的偏在が指摘されている。</p>
+    </div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-header">
+      <div class="domain-name">教育<small>Education</small></div>
+      <span class="domain-badge badge-strong">strong / 25言及</span>
+    </div>
+    <div class="domain-body">
+      <p>AI適応学習のメタ分析で効果量g=0.70を報告。Khanmigoが7万人→70万人超へ急成長。ただし4ヶ月縦断研究でLLM依存による成績低下の逆説的知見も示されている。</p>
+    </div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-header">
+      <div class="domain-name">気候・環境科学<small>Climate & Environmental Sciences</small></div>
+      <span class="domain-badge badge-strong">strong / 19言及</span>
+    </div>
+    <div class="domain-body">
+      <p>GenCast（Nature, 2024）がECMWFを97.2%のターゲットで上回り、GraphCast��Pangu-Weatherを99.2%で凌駕。NeuralGCMは2〜15日予報の95%でECMWF-ENSを超えた。ただし極端気象では数値モデルが優位。</p>
+    </div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-header">
+      <div class="domain-name">地球科学<small>Earth Sciences</small></div>
+      <span class="domain-badge badge-strong">strong / 19言及</span>
+    </div>
+    <div class="domain-body"><p>FengWuが有効予報時間を11.25日に延長。PhaseNet・EQTransformerが96%精度でP波・S波を検���。マルチタスク深層学習が地震監視パイプライン全体を単一モデルで統合した。</p></div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-header">
+      <div class="domain-name">エネルギー<small>Energy</small></div>
+      <span class="domain-badge badge-strong">strong / 19言及</span>
+    </div>
+    <div class="domain-body"><p>核融合制御で100回超の自律プラズマ制御に成功（Nature, 2022��。IEAはAI故障検知による送電網ダウンタイム30〜50%削減を試算。MLポテンシャルがDFT比2〜4桁の速度向上を実現。</p></div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-header">
+      <div class="domain-name">創造的芸術・メディア<small>Creative Arts & Media</small></div>
+      <span class="domain-badge badge-moderate">moderate / 19言及</span>
+    </div>
+    <div class="domain-body"><p>Science Advances（2024）のRCTが個人創造性+26.6%と集団多様性低下の逆説を実証。イラストレーターの26%が既に仕事を失い、AI動画採用企業の75%��雇用削減。RIAA v. Suno/Udio訴訟が著作権の先例を形成中。</p></div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-header">
+      <div class="domain-name">化学<small>Chemistry</small></div>
+      <span class="domain-badge badge-strong">strong / 18言及</span>
+    </div>
+    <div class="domain-body"><p>LocalRetroがUSPTO-50KでTop-1正解率89.5%を達成。MEEA*はUSPTOで100%成功率を記録。リバプール大学AI自律ロボットが3分野で人間同等の判断���即時実行した。</p></div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-header">
+      <div class="domain-name">農業・食料<small>Agriculture & Food</small></div>
+      <span class="domain-badge badge-moderate">moderate / 18言及</span>
+    </div>
+    <div class="domain-body"><p>精緻化によりtentativeからmoderateへ向上。ドローン市場が2024年の27.4億ドルから2030年の104.5億ドルへ拡大見込み。深層学習による病害抵抗性予測が95%精度に到達。DRLによる農業ロボット自律ナビゲーションも実証された。</p></div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-header">
+      <div class="domain-name">法・政策<small>Law & Policy</small></div>
+      <span class="domain-badge badge-strong">strong / 15言及</span>
+    </div>
+    <div class="domain-body"><p>法曹AI活用が2023〜2024年で315%増加。LegalBenchで最新LLMが87%超の精度を達成。AI契約レビューが時間60〜90%削減。Andersen v. Stability AI判決が著作権の先例を形成中。</p></div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-header">
+      <div class="domain-name">宇宙科学<small>Space Sciences</small></div>
+      <span class="domain-badge badge-moderate">moderate / 14言及</span>
+    </div>
+    <div class="domain-body"><p>insufficient（5言及）からmoderate（14言及）へ大幅向上。CvTが銀河分類98.5%純度を達成。CNNが超短周期惑星43件全件をスコア0.99超で検出。深層学習によるリアルタイム重力波検出がマルチメッセンジャー天文学を拡大。</p></div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-header">
+      <div class="domain-name">人文学<small>Humanities</small></div>
+      <span class="domain-badge badge-moderate">moderate / 14言及</span>
+    </div>
+    <div class="domain-body"><p>Transcribusが100以上の言語・数世紀の文字体系に対応。ACL 2024の研究がコーパスなしでチェロキー語等の翻訳品質を改��。AI倫理研究自体が2020年以降に爆発的に増加している。</p></div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-header">
+      <div class="domain-name">数学・統計学<small>Mathematics & Statistics</small></div>
+      <span class="domain-badge badge-strong">strong / 13言及</span>
+    </div>
+    <div class="domain-body"><p>moderate（5言及）からstrong（13言及）へ向上。AlphaProof+AlphaGeometry2がIMO 2024で銀メダル水準。FunSearch（Nature, 2023）がキャップセット問題の新解を発見。最適化���4言及）ではBengio et al.がニューラル組み合わせ最適化の成熟を裏��けた。</p></div>
+  </div>
+
+  <!-- 4. Mechanisms -->
+  <h2 id="mechanisms">加速メカニズムの構造</h2>
+  <p>551件の言及に付与された1,141件のメカニズムコードの分析から、AI加速のメカニズムは以下の3層に構造化される。</p>
+
+  <h3>第1層：直接的代替</h3>
+  <p>AI自体が研究タスクを実行するケース。「仮説生成」（313件で最頻出）と「分子・材料設計」（118件）がこの層を構成する。AlphaFold（構造予測）、GenCast（気象予報）、GitHub Copilot（コード生成��が代表例である。</p>
+
+  <h3>第2層：研究プロセス加速</h3>
+  <p>AIが研究ワークフローを効率化するケース。「文献統合」（81件）、「ワークフロー自動化」（70件）、「専門家拡張」（67件）がこの層を構成する。自律実験室（A-Lab）やAI Scientistが代表例で、研究サイクル全体の短縮に寄与する。</p>
+
+  <h3>第3層：知識基盤拡張</h3>
+  <p>AIが探索可能な空間を拡大するケース。「分野横断知識移転」（50件）、「マルチモーダル解析」（38件）がこの層に相当する。GNoMEによる材料空間の拡張（28万→221万件）が象徴的事例である。</p>
+
+  <table class="data-table">
+    <thead><tr><th>メカニズム</th><th>言及数</th><th>ドメイン数</th></tr></thead>
+    <tbody>
+      <tr><td>仮説生成</td><td>313</td><td>��範</td></tr>
+      <tr><td>分子・材料設計</td><td>118</td><td>生命科学, 化学, 材料</td></tr>
+      <tr><td>文献統合</td><td>81</td><td>広範</td></tr>
+      <tr><td>ワークフロー自動化</td><td>70</td><td>広範</td></tr>
+      <tr><td>専門家拡張</td><td>67</td><td>医療, 教育, 法律</td></tr>
+      <tr><td>分野横断知識移転</td><td>50</td><td>広範</td></tr>
+      <tr><td>臨床・実験支援</td><td>50</td><td>医療, 創薬</td></tr>
+      <tr><td>マルチモーダル解析</td><td>38</td><td>医療画像, CV, 地球科学</td></tr>
+      <tr><td>コード加速</td><td>35</td><td>ソフトウェア工学</td></tr>
+      <tr><td>シミュレーション代替</td><td>17</td><td>物理, 気候, ��学</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 5. Criticism -->
+  <h2 id="criticism">批判的視点の整理</h2>
+  <p>Team 8が収集した58件の批判的エビデンスから、以下の4つの系統的リスク���浮かび上がる。</p>
+
+  <div class="caution-box">
+    <div class="caution-label">技術的限界</div>
+    LLMのハルシネーションは「不可避の固有的限界」とする理論的分析（arXiv, 2024）が存在する。スケーリング則の収穫逓減を示す複数��報告に加え、ベンチマーク汚染（学習データリーク）がAI性能を過大評価させている懸念がある。
+  </div>
+
+  <div class="caution-box">
+    <div class="caution-label">品質への逆効果</div>
+    Science誌（2025）はLLM使用者の論文投稿数増加と査読採択率の低下を同時に報告しており、「量的爆発と質的低���」という二律背反が顕在化している。教育分野でも「認知的オフローディング」による学習の浅化が実証されている。
+  </div>
+
+  <div class="caution-box">
+    <div class="caution-label">公平性・バイアス</div>
+    医療画像AIの人種・性別バイアス、HR採用AIの差別的ランキング（白人名85%優先）、グローバルサウスの排除（AI導入率：高所得国47%、低所得国8%）が確認されている。
+  </div>
+
+  <div class="caution-box">
+    <div class="caution-label">経済的現実との乖離</div>
+    S&amp;P Globalの調査では42%の企業が2024年にAIイニシアテ���ブの大半を断念しており、Goldman Sachsの楽観的GDP+7%予測に対し、実際にAIを業務統合している米国企業はわずか9.3%にとどまる。
+  </div>
+
+  <!-- 6. Quality -->
+  <h2 id="quality">品質精緻化の成果</h2>
+
+  <div class="improve-row">
+    <div class="improve-label">メカニズムカバレッジ</div>
+    <div class="improve-bar-wrap"><div class="improve-bar-before" style="width:7%"></div><div class="improve-bar-after" style="width:80%"></div></div>
+    <div class="improve-values">7% → <strong>87%</strong></div>
+  </div>
+  <div class="improve-row">
+    <div class="improve-label">コンセンサスカバレッジ</div>
+    <div class="improve-bar-wrap"><div class="improve-bar-before" style="width:35%"></div><div class="improve-bar-after" style="width:65%"></div></div>
+    <div class="improve-values">35% → <strong>100%</strong></div>
+  </div>
+  <div class="improve-row">
+    <div class="improve-label">DOIカバレッジ</div>
+    <div class="improve-bar-wrap"><div class="improve-bar-before" style="width:46%"></div><div class="improve-bar-after" style="width:9%"></div></div>
+    <div class="improve-values">46% → <strong>55%</strong></div>
+  </div>
+  <div class="improve-row">
+    <div class="improve-label">空白L2ドメイン</div>
+    <div class="improve-bar-wrap"><div class="improve-bar-after" style="width:100%; background: var(--success)"></div></div>
+    <div class="improve-values">9 → <strong>0</strong></div>
+  </div>
+  <div class="improve-row">
+    <div class="improve-label">L1カバー率</div>
+    <div class="improve-bar-wrap"><div class="improve-bar-before" style="width:78%"></div><div class="improve-bar-after" style="width:22%"></div></div>
+    <div class="improve-values">14/18 → <strong>18/18</strong></div>
+  </div>
+
+  <table class="data-table" style="margin-top: 24px;">
+    <thead><tr><th>指標</th><th>初期構築時</th><th>精緻化後</th><th>改善</th></tr></thead>
+    <tbody>
+      <tr><td>言及総数</td><td>477</td><td>551</td><td>+74</td></tr>
+      <tr><td>出典総数</td><td>394</td><td>464</td><td>+70</td></tr>
+      <tr><td>著者総数</td><td>291</td><td>333</td><td>+42</td></tr>
+      <tr><td>評価済みドメイン</td><td>85</td><td>94</td><td>+9</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 7. App -->
+  <h2 id="app">Structural Inflection Scorer v2への接続</h2>
+  <p>本データベ���スは<a href="https://yuyanishimura0312.github.io/structural-inflection-scorer/" style="color:var(--accent-warm); font-weight:600;">Structural Inflection Scorer v2</a>の2段階判定システムの基盤と���て稼働している。</p>
+
+  <p><strong>Stage 1（ゲート判定）</strong>: ユーザーが入力した研究テーマをdomain_aliasesテーブルとドメイン名でファジーマッチングし、AI加速メカニズム・主要AI技術・言及数・コンセンサススコア・注意事項をカード形式で即座に表示する。</p>
+
+  <p><strong>Stage 2（加速度測定）</strong>: Stage 1でマッチしたドメインの情報をClaudeのシステムプロンプトに注入し、5つの学術フレームワーク（Scheffer臨界���移論、Geels多層的視座���Perez技術革命論、North制度経済学、Dixit-Pindyckリアルオプション）による構造的変化点ス��アリングを実行する。</p>
+
+  <!-- 8. Appendix -->
+  <h2 id="appendix">付録</h2>
+
+  <h3>付録A: L2ドメイン言及数ランキ���グ（上位20）</h3>
+  <table class="data-table">
+    <thead><tr><th>ドメイン</th><th>言及数</th><th>確信度</th></tr></thead>
+    <tbody>
+      <tr><td>創薬（Drug Discovery）</td><td>47</td><td>strong</td></tr>
+      <tr><td>材料設計（Materials Design）</td><td>24</td><td>strong</td></tr>
+      <tr><td>タンパク質科学（Protein Science）</td><td>19</td><td>strong</td></tr>
+      <tr><td>ゲノミクス（Genomics）</td><td>17</td><td>strong</td></tr>
+      <tr><td>ソフトウェア工学（Software Engineering）</td><td>16</td><td>strong</td></tr>
+      <tr><td>気候モデリング（Climate Modeling）</td><td>13</td><td>strong</td></tr>
+      <tr><td>金融（Finance & Investment）</td><td>13</td><td>strong</td></tr>
+      <tr><td>合成生物学（Synthetic Biology）</td><td>12</td><td>moderate</td></tr>
+      <tr><td>気象学（Weather Forecasting）</td><td>10</td><td>strong</td></tr>
+      <tr><td>医用画像（Medical Imaging）</td><td>10</td><td>moderate</td></tr>
+      <tr><td>個別指導（Intelligent Tutoring）</td><td>10</td><td>moderate</td></tr>
+      <tr><td>自然言語処理（NLP）</td><td>9</td><td>tentative</td></tr>
+      <tr><td>生態学（Ecology）</td><td>8</td><td>tentative</td></tr>
+      <tr><td>合成化学（Synthetic Chemistry）</td><td>8</td><td>tentative</td></tr>
+      <tr><td>人事・組織（HR）</td><td>8</td><td>tentative</td></tr>
+      <tr><td>コンピュータビジョン（CV）</td><td>7</td><td>tentative</td></tr>
+      <tr><td>電気工学（Electrical Eng.）</td><td>7</td><td>moderate</td></tr>
+      <tr><td>化学工学（Chemical Eng.）</td><td>7</td><td>tentative</td></tr>
+      <tr><td>ゲノム医療（Genomic Medicine）</td><td>7</td><td>tentative</td></tr>
+      <tr><td>マーケティング（Marketing）</td><td>7</td><td>moderate</td></tr>
+    </tbody>
+  </table>
+
+  <h3>付録B: データベーステーブル一覧</h3>
+  <table class="data-table">
+    <thead><tr><th>テーブル</th><th>レコード数</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td>mentions</td><td>551</td><td>加速言及（核心テーブル）</td></tr>
+      <tr><td>sources</td><td>464</td><td>出典文献</td></tr>
+      <tr><td>authors</td><td>333</td><td>著者</td></tr>
+      <tr><td>taxonomy_domains</td><td>97</td><td>3階層ドメイン分類</td></tr>
+      <tr><td>domain_assessments</td><td>94</td><td>ドメイ��別集約判定</td></tr>
+      <tr><td>mention_mechanisms</td><td>1,141</td><td>加速メカニズムコード</td></tr>
+      <tr><td>mention_evidence_items</td><td>690</td><td>裏付けエビデンス</td></tr>
+      <tr><td>mention_conditions</td><td>427</td><td>加速の条件・前提</td></tr>
+      <tr><td>mention_caveats</td><td>479</td><td>制約・��意書き</td></tr>
+      <tr><td>domain_aliases</td><td>77</td><td>マッチング用エイリアス</td></tr>
+    </tbody>
+  </table>
+
+  <div class="report-footer">
+    本レポートは2026年4月27日時点のデータに基づく。生成AIの研究加��は急速に進展する分野であり、データベースの定期的な更新が不可欠である。データベースおよびアプリはForesight Toolsスイートの一部として公開されている。
+  </div>
+
+</div>
+</body>
+</html>
